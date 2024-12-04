@@ -11,7 +11,7 @@ export class User {
   @IsNotEmpty()
   @IsString()
   @IsPhoneNumber(null)
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   phoneNumber: string;
 
   @ApiProperty({ example: 'Talha Shabbir', description: 'Full name of the user' })

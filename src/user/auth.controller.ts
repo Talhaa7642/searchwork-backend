@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Request, UseGuards, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './dto/create-user.dto';
+import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, VerifyOtp } from './dto/create-user.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('Authentication')
@@ -32,7 +32,7 @@ export class AuthController {
 
   @Post('verify-otp')
   @ApiOperation({ summary: 'Verify OTP for email' })
-  // @ApiBody({ type: Object, properties: { email: { type: 'string' }, otp: { type: 'string' } } })  // Specify the body format directly
+  @ApiBody({ type: VerifyOtp })
   @ApiResponse({ status: 200, description: 'OTP verified successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid OTP or email.' })
   async verifyOtp(@Body() { email, otp }: { email: string; otp: string }) {

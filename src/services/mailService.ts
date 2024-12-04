@@ -10,7 +10,7 @@ export class MailService {
   async sendVerificationEmail(to: string, otp: string): Promise<void> {
     const msg = {
       to,
-      from: process.env.FROM_EMAIL, // Use your SendGrid verified sender email
+      from: process.env.ADMIN_FROM_EMAIL,
       subject: 'Verify Your Email Address',
       text: `Your OTP for email verification is: ${otp}`,
       html: `<strong>Your OTP for email verification is: ${otp}</strong>`,
@@ -25,13 +25,13 @@ export class MailService {
     }
   }
 
-  async sendPasswordResetEmail(to: string): Promise<void> {
+  async sendPasswordResetEmail(to: string, otp: string): Promise<void> {
     const msg = {
       to,
-      from: process.env.FROM_EMAIL,
+      from: process.env.ADMIN_FROM_EMAIL,
       subject: 'Reset Your Password',
-      text: `Click on the following link to reset your password`,
-      html: `<p>Click on the following link to reset your password</p>`,
+      text: `To reset your password, Please use this otp code: ${otp}`,
+      html: `<p>To reset your password, Please use this otp code: ${otp}</p>`,
     };
 
     try {
