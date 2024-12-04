@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<User> {
-    const { email, password, name, role } = registerDto;
+    const { email, password, fullName, role} = registerDto;
 
     const existingUser = await this.userRepository.findOneBy({ email });
     if (existingUser) {
@@ -25,20 +25,12 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    // const user = this.userRepository.create({
-    //   email,
-    //   name,
-    //   password: hashedPassword,
-    //   role,
-    // });
 
     const user = this.userRepository.create({
-      email: 'user@example.com',
-      fullName: 'John Doe',
-      password: 'hashedPassword',
-      phoneNumber: '+1234567890',
-      role: 'Employee', // or 'Employer'
-      gender: 'Male',
+      email,
+      fullName,
+      password:hashedPassword,
+      role,
     });    
 
     await this.userRepository.save(user);
@@ -80,7 +72,10 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     if (user) {
-      await this.mailService.sendPasswordResetEmail(email);
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      await this.userRepository.update({ email }, { otp });
+
+      await this.mailService.sendPasswordResetEmail(email, otp);
     }
   }
 
