@@ -1,6 +1,12 @@
-import { Controller, Post, Body, Request, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, VerifyOtp } from './dto/create-user.dto';
+import {
+  RegisterDto,
+  LoginDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  VerifyOtpDto,
+} from './dto/auth.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('Authentication')
@@ -14,7 +20,11 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User successfully registered.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+    try {
+      return await this.authService.register(registerDto);
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Registration failed');
+    }
   }
 
   @Post('login')
@@ -23,20 +33,32 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'User successfully logged in.' })
   @ApiResponse({ status: 400, description: 'Invalid credentials.' })
   async login(@Body() loginDto: LoginDto) {
-    const user = await this.authService.validateUser(loginDto);
-    if (user) {
+    try {
+      const user = await this.authService.validateUser(loginDto);
+      if (!user) {
+        throw new BadRequestException('Invalid credentials');
+      }
       return this.authService.login(user);
+    } catch (error) {
+      console.error('Login error:', error.message);
+      throw new BadRequestException(error.message || 'Login failed');
     }
-    throw new BadRequestException('Invalid credentials');
   }
 
   @Post('verify-otp')
   @ApiOperation({ summary: 'Verify OTP for email' })
-  @ApiBody({ type: VerifyOtp })
+  @ApiBody({ type: VerifyOtpDto })
   @ApiResponse({ status: 200, description: 'OTP verified successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid OTP or email.' })
-  async verifyOtp(@Body() { email, otp }: { email: string; otp: string }) {
-    return this.authService.verifyOtp(email, otp);
+  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+    try {
+      return await this.authService.verifyOtp(
+        verifyOtpDto.email,
+        verifyOtpDto.otp,
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message || 'OTP verification failed');
+    }
   }
 
   @Post('forgot-password')
@@ -45,8 +67,12 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'OTP sent to email.' })
   @ApiResponse({ status: 400, description: 'Email not found.' })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    await this.authService.forgotPassword(forgotPasswordDto.email);
-    return { message: 'OTP sent to email' };
+    try {
+      await this.authService.forgotPassword(forgotPasswordDto.email);
+      return { message: 'OTP sent to email' };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to send OTP');
+    }
   }
 
   @Post('reset-password')
@@ -55,6 +81,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Password reset successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid OTP or password.' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto);
+    try {
+      return await this.authService.resetPassword(resetPasswordDto);
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Password reset failed');
+    }
   }
 }

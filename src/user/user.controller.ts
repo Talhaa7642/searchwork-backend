@@ -1,54 +1,88 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  ValidationPipe,
+  HttpStatus,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { UpdateUserProfile } from './dto/update-user.dto';
+import { UserFilterDto } from './dto/user-filter.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../utils/constants/constants';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from './entities/user.entity';
+import { UserResponseDto } from './dto/user-response.dto';
 
-@Controller('user')
+@ApiTags('users')
+@ApiBearerAuth('JWT-auth')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({
-    description: 'A successful hit can return user object',
-    summary: 'Register User',
-  })
-  @ApiResponse({ status: 201, description: ' Successfully created user.', type: User })
-  @Post('/register')
-  async create(@Body() body: CreateUserDto): Promise<User> {
-    try {
-      const consumer = await this.userService.findOneByPhoneNumber(body.phoneNumber);
-      if (!consumer) {
-        return this.userService.create(body);
-      }
-      return consumer;
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
-  }
-
-  @ApiOperation({
-    description: 'A successful hit can return All users',
-    summary: 'Get All Users',
-  })
-  @ApiResponse({ status: 201, description: ' Users data successfully fetched.', type: User })
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: 'Get all users with pagination and filters (Admin only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns paginated users',
+    type: UserResponseDto,
+  })
+  findAll(@Query(ValidationPipe) filterDto: UserFilterDto) {
+    return this.userService.findAll(filterDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns the user profile',
+    type: UserResponseDto,
+  })
+  findOne(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.userService.findOne(id, user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConsumerDto: UpdateUserDto) {
-    return this.userService.update(+id, updateConsumerDto);
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Profile updated successfully',
+    type: UserResponseDto,
+  })
+  updateProfile(
+    @Body(ValidationPipe) updateUserDto: UpdateUserProfile,
+    @GetUser() user: User,
+  ) {
+    return this.userService.updateProfile(user.id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: 'Delete user (Admin only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User deleted successfully',
+  })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.remove(id);
   }
 }
