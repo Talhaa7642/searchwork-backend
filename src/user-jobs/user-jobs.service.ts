@@ -79,7 +79,9 @@ export class UserJobsService {
       .createQueryBuilder('userJob')
       .leftJoinAndSelect('userJob.jobPost', 'jobPost')
       .leftJoinAndSelect('userJob.user', 'user')
-      .leftJoinAndSelect('jobPost.employer', 'employer');
+      .leftJoinAndSelect('jobPost.employer', 'employer')
+      .leftJoinAndSelect('user.jobSeekerProfile', 'jobSeeker');
+
 
     console.log('Filter DTO:', filterDto);
     console.log('Logged-in User:', user);

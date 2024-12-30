@@ -88,7 +88,7 @@ export class ResetPasswordDto {
   email: string;
 
   @ApiProperty({
-    example: '123456',
+    example: '1234',
     description: 'OTP sent to the user for verification',
   })
   @IsString()
@@ -114,10 +114,49 @@ export class VerifyOtpDto {
   email: string;
 
   @ApiProperty({
-    example: '123456',
+    example: '1234',
     description: 'OTP sent to the user for verification',
   })
   @IsString()
   @IsNotEmpty()
   otp: string;
+}
+
+
+export class SocialLoginDto {
+  @ApiProperty({
+    example: 'talhashabir0@gmail.com',
+    description: 'Email address of the user',
+  })
+  @IsEmail({}, { message: 'Invalid email address' })
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty({
+    example: 'google',
+    description: 'Email address of the user',
+  })
+  @IsString({ message: 'Platform must be a string' })
+  @IsNotEmpty({ message: 'Platform is required' })
+  platform: string;
+
+  @ApiProperty({
+    example: 'gytg627f67f276',
+    description: 'Email address of the user',
+  })
+  @IsString({ message: 'Platform token must be a string' })
+  @IsNotEmpty({ message: 'Platform token is required' })
+  platform_token: string;
+
+  @ApiProperty({
+    example: 'talha',
+    description: 'Name of the user',
+  })
+  @IsString({ message: 'Full name must be a string' })
+  @IsOptional()
+  fullName?: string;
+
+  @IsString({ message: 'Image must be a string' })
+  @IsOptional()
+  image?: string;
 }

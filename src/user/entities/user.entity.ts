@@ -78,6 +78,18 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   otp: string;
 
+  @ApiProperty({ example: 'apple' })
+  @IsOptional()
+  @IsString()
+  @Column({ nullable: true })
+  platform: string;
+
+  @ApiProperty({ example: 'apple-token' })
+  @IsOptional()
+  @IsString()
+  @Column({ nullable: true })
+  platform_token: string; 
+
   // Table relations
   // One-to-One relationship with JobSeeker, allows a user to have a job seeker profile
   // If the user is deleted, the associated job seeker profile will also be deleted

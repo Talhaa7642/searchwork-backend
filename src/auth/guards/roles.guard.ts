@@ -36,19 +36,25 @@ export class RolesGuard implements CanActivate {
 
     // Check for employer role and profile
     if (roles.includes(Role.Employer) && user.role === Role.Employer) {
+      if (context.getHandler().name === 'create') {
+        return true; // Grant access for profile creation
+      }
       const employer = await this.employerRepository.findOne({
         where: { user: { id: user.id } },
       });
       if (!employer) {
         return false;
       }
-      // Attach employer profile to request for service use
       request.employerProfile = employer;
       return true;
     }
 
     // Check for employee role and job seeker profile
     if (roles.includes(Role.Employee) && user.role === Role.Employee) {
+      if (context.getHandler().name === 'create') {
+        return true; // Grant access for profile creation
+      }
+
       const jobSeeker = await this.jobSeekerRepository.findOne({
         where: { user: { id: user.id } },
       });

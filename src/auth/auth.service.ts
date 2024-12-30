@@ -6,7 +6,8 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../user/entities/user.entity';
 import { MailService } from '../services/mailService';
-import { RegisterDto, LoginDto, ResetPasswordDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, ResetPasswordDto, SocialLoginDto } from './dto/auth.dto';
+import { generateRandomEmail } from 'src/services/generateRandonEmail';
 
 @Injectable()
 export class AuthService {
@@ -106,5 +107,37 @@ export class AuthService {
       return true;
     }
     throw new BadRequestException('Invalid OTP');
+  }
+
+  async socialLogin(userData: SocialLoginDto) {
+    const { email, platform, platform_token, fullName, image } = userData;
+    const appleUserEmail = generateRandomEmail(userData); // Your method for generating email if necessary
+
+    // Search for the user by email or generated random email
+    let user = await this.userRepository.findOne({
+      where: { email: email || appleUserEmail },
+    });
+
+    if (user) {
+      if (user.platform === platform) {
+        delete user.password; // Remove password from user data for security
+        const token = this.jwtService.sign({ userId: user.id, platform: user.platform });
+        return { user, token };
+      } else {
+        throw new BadRequestException('Email address is already in use with a different platform.');
+      }
+    } else {
+      // If user doesn't exist, create a new one
+      const newUser = this.userRepository.create({
+        fullName,
+        platform,
+        platform_token,
+        isEmailVerified: true, // Assuming email is verified from the platform
+      });
+
+      await this.userRepository.save(newUser);
+      const token = this.jwtService.sign({ userId: newUser.id, platform: newUser.platform });
+      return { user: newUser, token };
+    }
   }
 }

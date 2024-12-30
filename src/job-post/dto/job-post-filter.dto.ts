@@ -131,7 +131,7 @@ export class JobPostFilterDto extends PaginationDto {
   @ApiProperty({
     required: false,
     description: 'Filter jobs posted before this date',
-    example: '2024-12-31',
+    example: '2025-12-31',
   })
   @IsOptional()
   @IsDateString()

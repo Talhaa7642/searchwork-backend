@@ -6,6 +6,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
   VerifyOtpDto,
+  SocialLoginDto,
 } from './dto/auth.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
@@ -85,6 +86,20 @@ export class AuthController {
       return await this.authService.resetPassword(resetPasswordDto);
     } catch (error) {
       throw new BadRequestException(error.message || 'Password reset failed');
+    }
+  }
+
+  @Post('social-login')
+  @ApiOperation({ summary: 'Login with social media (e.g., Google, Apple)' })
+  @ApiBody({ type: SocialLoginDto })  // Customize this to match the structure of the social login payload
+  @ApiResponse({ status: 200, description: 'User successfully logged in.' })
+  @ApiResponse({ status: 400, description: 'Invalid social login data.' })
+  async socialLogin(@Body() userData: SocialLoginDto) {
+    try {
+      const result = await this.authService.socialLogin(userData);
+      return { data: result.user, token: result.token };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Social login failed');
     }
   }
 }
