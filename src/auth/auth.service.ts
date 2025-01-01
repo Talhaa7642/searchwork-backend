@@ -6,15 +6,24 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../user/entities/user.entity';
 import { MailService } from '../services/mailService';
-import { RegisterDto, LoginDto, ResetPasswordDto, SocialLoginDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, ResetPasswordDto, SocialLoginDto, VerifyPhoneNumberDto } from './dto/auth.dto';
 import { generateRandomEmail } from 'src/services/generateRandonEmail';
+import { Role } from 'src/utils/constants/constants';
+import { Employer } from 'src/employer/entities/employer.entity';
+import { JobSeeker } from 'src/job-seeker/entities/job-seeker.entity';
+import { UserService } from 'src/user/user.service';
+import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(User) private readonly employerRepository: Repository<Employer>,
+    @InjectRepository(User) private readonly jobSeekerRepository: Repository<JobSeeker>,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly userService: UserService,
+    private readonly d7NetworksService: D7NetworksService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<User> {
@@ -72,7 +81,13 @@ export class AuthService {
       role: user.role,
       isEmailVerified: user.isEmailVerified,
     };
-    return { accessToken: this.jwtService.sign(payload) };
+  
+    const userData = await this.userService.findOne(user.id, user);
+  
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: userData,
+    };
   }
 
   async verifyOtp(email: string, otp: string) {
@@ -86,6 +101,31 @@ export class AuthService {
     throw new BadRequestException('Invalid OTP');
   }
 
+  async resendOtpToEmail(email: string) {
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      throw new BadRequestException('Email not found');
+    }
+  
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    await this.userRepository.update({ email }, { otp });
+  
+    await this.mailService.sendVerificationEmail(email, otp);
+  }
+
+  async resendOtpToPhoneNumber(phoneNumber: string) {
+    const user = await this.userRepository.findOneBy({ phoneNumber });
+    if (!user) {
+      throw new BadRequestException('Phone number not found');
+    }
+  
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    await this.userRepository.update({ phoneNumber }, { otp });
+  
+    await this.d7NetworksService.sendOTP(phoneNumber, otp);
+  }
+  
+  
   async forgotPassword(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     if (!user) {
@@ -109,35 +149,92 @@ export class AuthService {
     throw new BadRequestException('Invalid OTP');
   }
 
+  async sendOtpToPhoneNumber(verifyPhoneNumberDto : VerifyPhoneNumberDto) {
+    const { phoneNumber, userId } = verifyPhoneNumberDto;
+    const user = await this.userRepository.findOneBy({ id: verifyPhoneNumberDto.userId });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const existingUser = await this.userRepository.findOneBy({ phoneNumber });
+    if (existingUser && existingUser.id !== userId) {
+      throw new BadRequestException('Phone number is already associated with another user');
+    }
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+    user.otp = otp;
+    user.phoneNumber = phoneNumber;
+    user.otpExpiresAt = (new Date(Date.now() + 1 * 60 * 1000)).toISOString();
+    await this.userRepository.save(user);
+
+    try {
+      const response = await this.d7NetworksService.sendOTP(phoneNumber, otp);
+      return { success: true, message: response.message };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to send OTP');
+    }
+  }
+
+  async verifyPhoneNumberByOtp({
+    phoneNumber,
+    userId,
+    otp,
+  }: {
+    phoneNumber: string;
+    userId: number;
+    otp: string;
+  }) {
+    const user = await this.userRepository.findOneBy({ id: userId, phoneNumber });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.otp !== otp || !user.otp || !user.otpExpiresAt || new Date() > new Date(user.otpExpiresAt)) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+
+    user.isPhoneNumberVerified = true;
+    user.otp = null;
+    user.otpExpiresAt = null;
+    await this.userRepository.save(user);
+
+    return { success: true, message: 'Phone verified successfully' };
+  }
+
   async socialLogin(userData: SocialLoginDto) {
     const { email, platform, platform_token, fullName, image } = userData;
-    const appleUserEmail = generateRandomEmail(userData); // Your method for generating email if necessary
-
-    // Search for the user by email or generated random email
+  
+    if (!platform || !platform_token) {
+      throw new BadRequestException('Platform and platform_token are required');
+    }
+  
+    const generatedEmail = email || generateRandomEmail(userData);
+  
+    const generatedFullName = fullName || "Anonymous User";
+  
     let user = await this.userRepository.findOne({
-      where: { email: email || appleUserEmail },
+      where: { platform, platform_token },
     });
-
+  
     if (user) {
-      if (user.platform === platform) {
-        delete user.password; // Remove password from user data for security
-        const token = this.jwtService.sign({ userId: user.id, platform: user.platform });
-        return { user, token };
-      } else {
-        throw new BadRequestException('Email address is already in use with a different platform.');
-      }
+      const token = this.jwtService.sign({ userId: user.id, platform: user.platform });
+      return { user, token };
     } else {
-      // If user doesn't exist, create a new one
       const newUser = this.userRepository.create({
-        fullName,
+        email: generatedEmail,
+        fullName: generatedFullName,
         platform,
         platform_token,
-        isEmailVerified: true, // Assuming email is verified from the platform
+        isEmailVerified: true,
       });
-
+  
       await this.userRepository.save(newUser);
       const token = this.jwtService.sign({ userId: newUser.id, platform: newUser.platform });
       return { user: newUser, token };
     }
   }
+  
+  
 }

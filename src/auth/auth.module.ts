@@ -12,6 +12,8 @@ import { MailService } from '../services/mailService';
 import { Employer } from '../employer/entities/employer.entity';
 import { JobSeeker } from '../job-seeker/entities/job-seeker.entity';
 import { RolesGuard } from './guards/roles.guard';
+import { UserService } from 'src/user/user.service';
+import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { RolesGuard } from './guards/roles.guard';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, MailService, RolesGuard],
+  providers: [AuthService, JwtStrategy, MailService, RolesGuard, UserService, D7NetworksService],
   controllers: [AuthController],
   exports: [AuthService, RolesGuard],
 })

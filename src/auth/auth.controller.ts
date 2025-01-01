@@ -7,13 +7,17 @@ import {
   ResetPasswordDto,
   VerifyOtpDto,
   SocialLoginDto,
+  VerifyPhoneNumberDto,
+  VerifyPhoneNumberOtpDto,
+  ResendOtpDto,
 } from './dto/auth.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private readonly d7NetworksService: D7NetworksService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -62,6 +66,30 @@ export class AuthController {
     }
   }
 
+  @Post('register-phone-number')
+  @ApiOperation({ summary: 'Register user phone number' })
+  @ApiBody({ type: VerifyPhoneNumberDto })
+  @ApiResponse({ status: 200, description: 'Otp successfully send to Phone Number.' })
+  @ApiResponse({ status: 400, description: 'Invalid phone number.' })
+  async verifyPhoneNumber(@Body() verifyPhoneNumberDto: VerifyPhoneNumberDto) {
+    try {
+      return await this.authService.sendOtpToPhoneNumber(
+        verifyPhoneNumberDto
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Phone verification failed');
+    }
+  }
+
+  @Post('verify-phone-number-otp')
+  @ApiOperation({ summary: 'Verify phone number using OTP' })
+  @ApiBody({ type: VerifyPhoneNumberOtpDto })
+  @ApiResponse({ status: 200, description: 'Phone verified successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid OTP or phone number.' })
+  async verifyPhoneNumberByOtp(@Body() verifyPhoneNumberOtpDto: VerifyPhoneNumberOtpDto) {
+    return this.authService.verifyPhoneNumberByOtp(verifyPhoneNumberOtpDto);
+  }
+
   @Post('forgot-password')
   @ApiOperation({ summary: 'Request OTP for password reset' })
   @ApiBody({ type: ForgotPasswordDto })
@@ -89,9 +117,29 @@ export class AuthController {
     }
   }
 
+  @Post('resend-otp')
+  @ApiOperation({ summary: 'Resend OTP to the user email or phone number' })
+  @ApiBody({ type: ResendOtpDto })
+  @ApiResponse({ status: 200, description: 'OTP resent successfully.' })
+  @ApiResponse({ status: 400, description: 'Failed to resend OTP.' })
+  async resendOtp(@Body() resendOtpDto: ResendOtpDto) {
+    try {
+      if (resendOtpDto.email) {
+        await this.authService.resendOtpToEmail(resendOtpDto.email);
+      } else if (resendOtpDto.phoneNumber) {
+        await this.authService.resendOtpToPhoneNumber(resendOtpDto.phoneNumber);
+      } else {
+        throw new BadRequestException('Email or phone number must be provided');
+      }
+      return { message: 'OTP resent successfully' };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to resend OTP');
+    }
+  }
+
   @Post('social-login')
   @ApiOperation({ summary: 'Login with social media (e.g., Google, Apple)' })
-  @ApiBody({ type: SocialLoginDto })  // Customize this to match the structure of the social login payload
+  @ApiBody({ type: SocialLoginDto })
   @ApiResponse({ status: 200, description: 'User successfully logged in.' })
   @ApiResponse({ status: 400, description: 'Invalid social login data.' })
   async socialLogin(@Body() userData: SocialLoginDto) {
