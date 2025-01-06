@@ -104,13 +104,13 @@ export class ResetPasswordDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({
-    example: '1234',
-    description: 'OTP sent to the user for verification',
-  })
-  @IsString()
-  @IsNotEmpty()
-  otp: string;
+  // @ApiProperty({
+  //   example: '1234',
+  //   description: 'OTP sent to the user for verification',
+  // })
+  // @IsString()
+  // @IsNotEmpty()
+  // otp: string;
 
   @ApiProperty({
     example: 'newpassword123',
@@ -211,7 +211,7 @@ export class SocialLoginDto {
   @IsString({ message: 'Platform token must be a string' })
   @IsNotEmpty({ message: 'Platform token is required' })
   platform_token: string;
-
+  
   @ApiProperty({
     example: 'talha',
     description: 'Name of the user',
@@ -219,8 +219,12 @@ export class SocialLoginDto {
   @IsString({ message: 'Full name must be a string' })
   @IsOptional()
   fullName?: string;
-
-  @IsString({ message: 'Image must be a string' })
+  
+  @ApiProperty({
+    example:  'https://img.freepik.com/premium-photo/trees-growing-forest_1048944-30368869.jpg?w=2000',
+    description: 'Profile image of the user',
+  })
+  @IsString({ message: 'Image must' })
   @IsOptional()
   image?: string;
 }

@@ -95,6 +95,12 @@ export class User extends BaseEntity {
   @IsString()
   @Column({ nullable: true })
   platform_token: string; 
+  
+  @ApiProperty({ example: 'https://img.freepik.com/premium-photo/trees-growing-forest_1048944-30368869.jpg?w=2000' })
+  @IsOptional()
+  @IsString()
+  @Column({ default: null })
+  profileImageUrl: string;
 
    @OneToOne(() => JobSeeker, (jobSeeker) => jobSeeker.user, {
     onDelete: 'CASCADE',

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Request, Delete, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   RegisterDto,
@@ -13,6 +13,9 @@ import {
 } from './dto/auth.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { User } from 'src/user/entities/user.entity';
+import { RolesGuard } from './guards/roles.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -150,4 +153,32 @@ export class AuthController {
       throw new BadRequestException(error.message || 'Social login failed');
     }
   }
+
+
+
+
+//   @Post('logout')
+// @UseGuards(JwtAuthGuard)
+// async logout(@CurrentUser() user: User): Promise<{ message: string }> {
+//   try {
+//     // Invalidate the current user's token (e.g., add it to a blacklist)
+//     await this.authService.logout(user.id);
+//     return { message: 'User successfully logged out' };
+//   } catch (error) {
+//     throw new BadRequestException(error.message || 'Logout failed');
+//   }
+// }
+
+
+  // @Delete('delete-account')
+  // @UseGuards(JwtAuthGuard)
+  // async deleteAccount(@CurrentUser() user: User): Promise<{ message: string }> {
+  //   try {
+  //     console.log('User:', user);
+  //     await this.authService.deleteAccount(user.id);
+  //     return { message: 'Account successfully deleted' };
+  //   } catch (error) {
+  //     throw new BadRequestException('Account deletion failed');
+  //   }
+  // }
 }
