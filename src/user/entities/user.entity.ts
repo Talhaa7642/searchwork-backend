@@ -22,6 +22,8 @@ import { Employer } from '../../employer/entities/employer.entity';
 import { UserJob } from '../../user-jobs/entities/user-job.entity';
 import { Location } from '../../location/entities/location.entity';
 import { BaseEntity } from '../../common/base/base.entity';
+import { Feedback } from './feedback.entity';
+import { SupportTicket } from './supportTicket.entity';
 
 @Entity()
 @Index(['email', 'phoneNumber'], { unique: true })
@@ -121,4 +123,10 @@ export class User extends BaseEntity {
 
   @OneToMany(() => UserJob, (userJob) => userJob.user)
   userJobs: UserJob[];
+  
+  @OneToMany(() => Feedback, (feedback) => feedback.user)
+  feedback: Feedback[];
+  
+  @OneToMany(() => SupportTicket, (supportTicket) => supportTicket.user)
+  supportTickets: SupportTicket[];
 }
