@@ -9,14 +9,17 @@ import { JobSeeker } from '../job-seeker/entities/job-seeker.entity';
 import { FeedbackController } from './feedback.controller';
 import { FeedbackService } from './feedback.service';
 import { Feedback } from './entities/feedback.entity';
+import { SupportTicketController } from './support-ticket.controller';
+import { SupportTicketService } from './support-ticket.service';
+import { SupportTicket } from './entities/supportTicket.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Employer, JobSeeker, Feedback]),
+    TypeOrmModule.forFeature([User, Employer, JobSeeker, Feedback, SupportTicket]),
     forwardRef(() => AuthModule),
   ],
-  controllers: [UserController, FeedbackController],
-  providers: [UserService, FeedbackService],
+  controllers: [UserController, FeedbackController, SupportTicketController],
+  providers: [UserService, FeedbackService, SupportTicketService],
   exports: [UserService],
 })
 export class UserModule {}
