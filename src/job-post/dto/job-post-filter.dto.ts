@@ -12,7 +12,7 @@ import {
   JobType,
   JobAvailability,
   ExperienceLevel,
-  JobDuration,
+  // JobDuration,
   Status,
 } from '../../utils/constants/constants';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -60,25 +60,25 @@ export class JobPostFilterDto extends PaginationDto {
   @Min(0)
   maxSalary?: number;
 
-  @ApiProperty({
-    enum: ExperienceLevel,
-    required: false,
-    description: 'Filter by experience level',
-    example: ExperienceLevel.Intermediate,
-  })
-  @IsOptional()
-  @IsEnum(ExperienceLevel)
-  experienceLevel?: ExperienceLevel;
+  // @ApiProperty({
+  //   enum: ExperienceLevel,
+  //   required: false,
+  //   description: 'Filter by experience level',
+  //   example: ExperienceLevel.Intermediate,
+  // })
+  // @IsOptional()
+  // @IsEnum(ExperienceLevel)
+  // experienceLevel?: ExperienceLevel;
 
-  @ApiProperty({
-    enum: JobDuration,
-    required: false,
-    description: 'Filter by job duration',
-    example: JobDuration.Permanent,
-  })
-  @IsOptional()
-  @IsEnum(JobDuration)
-  duration?: JobDuration;
+  // @ApiProperty({
+  //   enum: JobDuration,
+  //   required: false,
+  //   description: 'Filter by job duration',
+  //   example: JobDuration.Permanent,
+  // })
+  // @IsOptional()
+  // @IsEnum(JobDuration)
+  // duration?: JobDuration;
 
   @ApiProperty({
     enum: Status,
@@ -101,13 +101,13 @@ export class JobPostFilterDto extends PaginationDto {
 
   @ApiProperty({
     required: false,
-    description: 'Filter by location ID',
-    example: 1,
+    description: 'Filter by location',
+    example: "USA",
   })
   @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  locationId?: number;
+  @Type(() => String)
+  @IsString()
+  location?: string;
 
   @ApiProperty({
     required: false,

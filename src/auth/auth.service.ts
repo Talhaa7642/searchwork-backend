@@ -141,39 +141,6 @@ export class AuthService {
     throw new BadRequestException('Invalid OTP');
   }
 
-  // async socialLogin(userData: SocialLoginDto) {
-  //   const { email, platform, platform_token, fullName, image } = userData;
-  
-  //   if (!platform || !platform_token) {
-  //     throw new BadRequestException('Platform and platform_token are required');
-  //   }
-  
-  //   const generatedEmail = email || generateRandomEmail(userData);
-  //   const generatedFullName = fullName || "Anonymous User";
-  
-  //   let user = await this.userRepository.findOne({
-  //     where: { platform, platform_token },
-  //   });
-  
-  //   if (user) {
-  //     const token = this.jwtService.sign({ userId: user.id, platform: user.platform });
-  //     return { user, token };
-  //   } else {
-  //     const newUser = this.userRepository.create({
-  //       email: generatedEmail,
-  //       fullName: generatedFullName,
-  //       platform,
-  //       platform_token,
-  //       isEmailVerified: true,
-  //     });
-  
-  //     await this.userRepository.save(newUser);
-  //     const token = this.jwtService.sign({ userId: newUser.id, platform: newUser.platform });
-  //     return { user: newUser, token };
-  //   }
-  // }
-
-
   async socialLogin(userData: SocialLoginDto) {
     const { email, platform, platform_token, fullName, image } = userData;
     console.log("userData", userData);

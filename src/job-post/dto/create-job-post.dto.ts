@@ -10,7 +10,7 @@ import {
   JobType,
   JobAvailability,
   ExperienceLevel,
-  JobDuration,
+  // JobDuration,
 } from '../../utils/constants/constants';
 
 export class CreateJobPostDto {
@@ -39,21 +39,21 @@ export class CreateJobPostDto {
   @IsNotEmpty()
   description: string;
 
-  @ApiProperty({
-    example: '5+ years experience in Node.js...',
-    description: 'Job requirements',
-  })
-  @IsString()
-  @IsOptional()
-  requirements?: string;
+  // @ApiProperty({
+  //   example: '5+ years experience in Node.js...',
+  //   description: 'Job requirements',
+  // })
+  // @IsString()
+  // @IsOptional()
+  // requirements?: string;
 
   @ApiProperty({
-    example: 1,
-    description: 'Location ID where the job is based',
+    example: "USA",
+    description: 'Location where the job is based',
   })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  locationId: number;
+  location: string;
 
   @ApiProperty({
     example: 100000,
@@ -72,21 +72,21 @@ export class CreateJobPostDto {
   @IsNotEmpty()
   availability: JobAvailability;
 
-  @ApiProperty({
-    enum: ExperienceLevel,
-    example: ExperienceLevel.Senior,
-    description: 'Required experience level',
-  })
-  @IsEnum(ExperienceLevel)
-  @IsNotEmpty()
-  experienceLevel: ExperienceLevel;
+  // @ApiProperty({
+  //   enum: ExperienceLevel,
+  //   example: ExperienceLevel.Senior,
+  //   description: 'Required experience level',
+  // })
+  // @IsEnum(ExperienceLevel)
+  // @IsNotEmpty()
+  // experienceLevel: ExperienceLevel;
 
-  @ApiProperty({
-    enum: JobDuration,
-    example: JobDuration.Permanent,
-    description: 'Job duration type',
-  })
-  @IsEnum(JobDuration)
-  @IsNotEmpty()
-  duration: JobDuration;
+  // @ApiProperty({
+  //   enum: JobDuration,
+  //   example: JobDuration.Permanent,
+  //   description: 'Job duration type',
+  // })
+  // @IsEnum(JobDuration)
+  // @IsNotEmpty()
+  // duration: JobDuration;
 }

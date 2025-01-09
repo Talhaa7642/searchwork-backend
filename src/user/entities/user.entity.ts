@@ -106,7 +106,6 @@ export class User extends BaseEntity {
     onDelete: 'CASCADE',
     eager: true,
   })
-  @JoinColumn()
   jobSeekerProfile: JobSeeker;
 
    @OneToOne(() => Employer, (employer) => employer.user, {
@@ -114,11 +113,11 @@ export class User extends BaseEntity {
   })
   employerProfile: Employer;
 
-   @ManyToOne(() => Location, {
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn()
-  location: Location;
+  //  @ManyToOne(() => Location, {
+  //   onDelete: 'SET NULL',
+  // })
+  // @JoinColumn()
+  // location: Location;
 
   @OneToMany(() => UserJob, (userJob) => userJob.user)
   userJobs: UserJob[];
