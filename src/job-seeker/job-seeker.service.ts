@@ -14,12 +14,16 @@ import { JobSeekerFilterDto } from './dto/job-seeker-filter.dto';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { SortOrder } from '../common/dto/pagination.dto';
 import { Role } from '../utils/constants/constants';
+import { S3Service } from 'src/utils/s3Services/s3Services';
 
 @Injectable()
 export class JobSeekerService {
   constructor(
     @InjectRepository(JobSeeker)
     private readonly jobSeekerRepository: Repository<JobSeeker>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly s3Service: S3Service,
   ) {}
 
   async findAll(
@@ -127,14 +131,36 @@ export class JobSeekerService {
     if (existingProfile) {
       throw new UnauthorizedException('User already has a job seeker profile');
     }
-
+  
+    // Handle profile image upload
+    let profileImageUrl: string | undefined;
+    if (createJobSeekerDto.image) {
+      const uploadResult = await this.s3Service.uploadFile({
+        imageObject: {
+          path: `users/${user.id}/profile.jpg`, // Specify the path structure
+          data: createJobSeekerDto.image,
+          mime: 'image/jpeg', // Update as per the actual image format
+        },
+      });
+  
+      profileImageUrl = uploadResult.Location; // Extract the uploaded image URL
+    }
+  
+    // Update the user's profile image
+    if (profileImageUrl) {
+      user.profileImageUrl = profileImageUrl; // Ensure `profileImage` is a field in your `User` entity
+      await this.userRepository.save(user);
+    }
+  
+    // Create the new job seeker profile
     const newJobSeeker = this.jobSeekerRepository.create({
       ...createJobSeekerDto,
       user,
     });
-
+  
     return await this.jobSeekerRepository.save(newJobSeeker);
   }
+  
 
   async update(
     id: number,

@@ -15,6 +15,7 @@ export enum Status {
   Hiring = 'hiring',
   Rejected = 'rejected',
   Accepted = 'accepted',
+  Closed = 'closed',
 }
 
 export enum JobType {

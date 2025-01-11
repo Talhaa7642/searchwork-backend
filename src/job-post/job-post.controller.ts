@@ -11,6 +11,7 @@ import {
   ParseIntPipe,
   ValidationPipe,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -29,6 +30,7 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { JobPostResponseDto } from './dto/job-post-response.dto';
 import { JobPostFilterDto } from './dto/job-post-filter.dto';
+import { DuplicateJobPostException } from 'src/utils/exceptions/jobPostException';
 
 @ApiTags('job-posts')
 @ApiBearerAuth('JWT-auth')
@@ -51,11 +53,18 @@ export class JobPostController {
     description: 'Job post created successfully',
     type: JobPostResponseDto,
   })
-  create(
+  async create(
     @Body(ValidationPipe) createJobPostDto: CreateJobPostDto,
     @GetUser() user: User,
   ) {
-    return this.jobPostService.create(createJobPostDto, user);
+    try {
+      return await this.jobPostService.create(createJobPostDto, user);
+    } catch (error) {
+      if (error instanceof DuplicateJobPostException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      throw error;
+    }
   }
 
   @Get()
