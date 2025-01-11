@@ -93,7 +93,8 @@ const seedData = async (dataSource: DataSource) => {
       phoneNumber: '+1234567890',
       role: Role.Employee,
       gender: Gender.Male,
-      location: savedLocations[0],
+      // location: savedLocations[0],
+      location: "savedLocations[0]",
       isEmailVerified: true,
     },
     {
@@ -103,7 +104,8 @@ const seedData = async (dataSource: DataSource) => {
       phoneNumber: '+1234567891',
       role: Role.Employer,
       gender: Gender.Female,
-      location: savedLocations[1],
+      // location: savedLocations[1],
+      location: "savedLocations[1]",
       isEmailVerified: true,
     },
     {
@@ -113,7 +115,8 @@ const seedData = async (dataSource: DataSource) => {
       phoneNumber: '+1234567892',
       role: Role.Employee,
       gender: Gender.Other,
-      location: savedLocations[2],
+      // location: savedLocations[2],
+      location: "savedLocations[2]",
       isEmailVerified: true,
     },
     {
@@ -123,7 +126,8 @@ const seedData = async (dataSource: DataSource) => {
       phoneNumber: '+1234567893',
       role: Role.Employer,
       gender: Gender.Female,
-      location: savedLocations[3],
+      // location: savedLocations[3],
+      location: "savedLocations[3]",
       isEmailVerified: true,
     },
     {
@@ -133,7 +137,8 @@ const seedData = async (dataSource: DataSource) => {
       phoneNumber: '+1234567894',
       role: Role.Admin,
       gender: Gender.Male,
-      location: savedLocations[4],
+      // location: savedLocations[4],
+      location: "savedLocations[4]",
       isEmailVerified: false,
     },
   ];
@@ -211,7 +216,8 @@ const seedData = async (dataSource: DataSource) => {
       experienceLevel: ExperienceLevel.Expert,
       duration: JobDuration.Permanent,
       status: Status.Hiring,
-      location: savedLocations[0],
+      // location: savedLocations[0],
+      location: 'USA',
       employer: savedEmployers[0],
     },
     {
@@ -224,7 +230,8 @@ const seedData = async (dataSource: DataSource) => {
       experienceLevel: ExperienceLevel.Intermediate,
       duration: JobDuration.Permanent,
       status: Status.Hiring,
-      location: savedLocations[1],
+      // location: savedLocations[1],
+      location: "savedLocations[1]",
       employer: savedEmployers[0],
     },
     {
@@ -237,7 +244,8 @@ const seedData = async (dataSource: DataSource) => {
       experienceLevel: ExperienceLevel.Entry,
       duration: JobDuration.Temporary,
       status: Status.Hiring,
-      location: savedLocations[2],
+      // location: savedLocations[2],
+      location: "savedLocations[2]",
       employer: savedEmployers[0],
     },
     {
@@ -250,7 +258,8 @@ const seedData = async (dataSource: DataSource) => {
       experienceLevel: ExperienceLevel.Intermediate,
       duration: JobDuration.Permanent,
       status: Status.Hiring,
-      location: savedLocations[3],
+      // location: savedLocations[3],
+      location: "savedLocations[3]",
       employer: savedEmployers[1],
     },
     {
@@ -263,7 +272,8 @@ const seedData = async (dataSource: DataSource) => {
       experienceLevel: ExperienceLevel.Senior,
       duration: JobDuration.Permanent,
       status: Status.Hiring,
-      location: savedLocations[4],
+      // location: savedLocations[4],
+      location: "savedLocations[4]",
       employer: savedEmployers[1],
     },
   ];

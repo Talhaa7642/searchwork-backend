@@ -22,11 +22,13 @@ import { Employer } from '../../employer/entities/employer.entity';
 import { UserJob } from '../../user-jobs/entities/user-job.entity';
 import { Location } from '../../location/entities/location.entity';
 import { BaseEntity } from '../../common/base/base.entity';
+import { Feedback } from './feedback.entity';
+import { SupportTicket } from './supportTicket.entity';
 
 @Entity()
 @Index(['email', 'phoneNumber'], { unique: true })
 export class User extends BaseEntity {
-  // User's phone number, optional for contact purposes
+
   @ApiProperty({ example: '+971123456789' })
   @IsOptional()
   @IsString()
@@ -34,49 +36,55 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   phoneNumber: string;
 
-  // User's full name, required for identification
+  @ApiProperty({ example: false })
+  @IsOptional()
+  @IsString()
+  @Column({ default: false })
+  isPhoneNumberVerified: boolean;
+
   @ApiProperty({ example: 'John Doe' })
   @IsNotEmpty()
   @IsString()
   @Column({ nullable: false })
   fullName: string;
 
-  // User's email, must be unique for authentication
   @ApiProperty({ example: 'user@example.com' })
   @IsNotEmpty()
   @IsEmail()
   @Column({ nullable: false, unique: true })
   email: string;
 
-  // User's password, stored securely and not selectable in queries
   @ApiProperty({ example: 'password123' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @Column({ nullable: false, select: false })
+  @Column({ nullable: true, select: false })
   password: string;
 
-  // User's role, determines access level in the application
   @ApiProperty({ example: 'Employee' })
   @IsEnum(Role)
   @Column({ type: 'enum', enum: Role, default: Role.Employee })
   role: Role;
 
-  // User's gender, optional for demographic purposes
   @ApiProperty({ example: 'Male' })
   @Column({ type: 'enum', enum: Gender, nullable: true })
   gender: Gender | null;
 
-  // Indicates if the user's email has been verified
   @ApiProperty({ example: false })
   @Column({ default: false })
   isEmailVerified: boolean;
 
-  // One-time password for additional security, optional
   @ApiProperty({ example: '123456' })
   @IsOptional()
   @IsString()
   @Column({ nullable: true })
   otp: string;
+  
+  @ApiProperty({ example: '2025-01-01T00:00:00Z', description: 'Expiration date of the OTP' })
+  @IsOptional()
+  @IsString()
+  @Column({ nullable: true, type: 'timestamp', default: null })
+  otpExpiresAt: string | null;
+  
 
   @ApiProperty({ example: 'apple' })
   @IsOptional()
@@ -89,33 +97,36 @@ export class User extends BaseEntity {
   @IsString()
   @Column({ nullable: true })
   platform_token: string; 
+  
+  @ApiProperty({ example: 'https://img.freepik.com/premium-photo/trees-growing-forest_1048944-30368869.jpg?w=2000' })
+  @IsOptional()
+  @IsString()
+  @Column({ default: null })
+  profileImageUrl: string;
 
-  // Table relations
-  // One-to-One relationship with JobSeeker, allows a user to have a job seeker profile
-  // If the user is deleted, the associated job seeker profile will also be deleted
-  @OneToOne(() => JobSeeker, (jobSeeker) => jobSeeker.user, {
+   @OneToOne(() => JobSeeker, (jobSeeker) => jobSeeker.user, {
     onDelete: 'CASCADE',
-    eager: true, // Automatically load the job seeker profile when the user is loaded
+    eager: true,
   })
-  @JoinColumn()
   jobSeekerProfile: JobSeeker;
 
-  // One-to-One relationship with Employer, allows a user to have an employer profile
-  // If the user is deleted, the associated employer profile will also be deleted
-  @OneToOne(() => Employer, (employer) => employer.user, {
+   @OneToOne(() => Employer, (employer) => employer.user, {
     onDelete: 'CASCADE',
   })
   employerProfile: Employer;
 
-  // Many-to-One relationship with Location, allows a user to be associated with a location
-  // If the location is deleted, the user's location will be set to null
-  @ManyToOne(() => Location, {
-    onDelete: 'SET NULL', // Prevents deletion of user if location is deleted
-  })
-  @JoinColumn()
-  location: Location;
+  //  @ManyToOne(() => Location, {
+  //   onDelete: 'SET NULL',
+  // })
+  // @JoinColumn()
+  // location: Location;
 
-  // One-to-Many relationship with UserJob, allows a user to have multiple job applications
   @OneToMany(() => UserJob, (userJob) => userJob.user)
   userJobs: UserJob[];
+  
+  @OneToMany(() => Feedback, (feedback) => feedback.user)
+  feedback: Feedback[];
+  
+  @OneToMany(() => SupportTicket, (supportTicket) => supportTicket.user)
+  supportTickets: SupportTicket[];
 }
