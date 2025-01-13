@@ -11,7 +11,7 @@ import { Type } from 'class-transformer';
 import {
   JobType,
   JobAvailability,
-  ExperienceLevel,
+  // ExperienceLevel,
   // JobDuration,
   Status,
 } from '../../utils/constants/constants';
@@ -102,7 +102,7 @@ export class JobPostFilterDto extends PaginationDto {
   @ApiProperty({
     required: false,
     description: 'Filter by location',
-    example: "USA",
+    example: 'USA',
   })
   @IsOptional()
   @Type(() => String)
@@ -137,14 +137,14 @@ export class JobPostFilterDto extends PaginationDto {
   @IsDateString()
   postedBefore?: Date;
 
-  @ApiProperty({
-    required: false,
-    description: 'Search radius in kilometers from user location',
-    example: 50,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(0)
-  radius?: number;
+  // @ApiProperty({
+  //   required: false,
+  //   description: 'Search radius in kilometers from user location',
+  //   example: 50,
+  // })
+  // @IsOptional()
+  // @Type(() => Number)
+  // @IsNumber()
+  // @Min(0)
+  // radius?: number;
 }

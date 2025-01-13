@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +15,7 @@ import { UserJobFilterDto } from './dto/user-job-filter.dto';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { Role, Status } from '../utils/constants/constants';
 import { SortOrder } from '../common/dto/pagination.dto';
+import { SavedJob } from './entities/saved-job.entity';
 
 @Injectable()
 export class UserJobsService {
@@ -22,6 +24,8 @@ export class UserJobsService {
     private readonly userJobRepository: Repository<UserJob>,
     @InjectRepository(JobPost)
     private readonly jobPostRepository: Repository<JobPost>,
+    @InjectRepository(SavedJob)
+    private readonly savedJobRepository: Repository<SavedJob>,
   ) {}
 
   async create(
@@ -57,7 +61,11 @@ export class UserJobsService {
       appliedAt: new Date(),
     });
 
-    return await this.userJobRepository.save(userJob);
+    const savedUserJob = await this.userJobRepository.save(userJob);
+
+    await this.updateJobPostApplicationCount(jobPost.id);
+
+    return savedUserJob;
   }
 
   async findAll(
@@ -81,7 +89,6 @@ export class UserJobsService {
       .leftJoinAndSelect('userJob.user', 'user')
       .leftJoinAndSelect('jobPost.employer', 'employer')
       .leftJoinAndSelect('user.jobSeekerProfile', 'jobSeeker');
-
 
     console.log('Filter DTO:', filterDto);
     console.log('Logged-in User:', user);
@@ -242,7 +249,7 @@ export class UserJobsService {
   async remove(id: number, user: User): Promise<{ message: string }> {
     const userJob = await this.userJobRepository.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['user', 'jobPost'],
     });
 
     if (!userJob) {
@@ -269,7 +276,11 @@ export class UserJobsService {
         );
     }
 
+    const jobPostId = userJob.jobPost.id;
     await this.userJobRepository.remove(userJob);
+
+    await this.updateJobPostApplicationCount(jobPostId);
+
     return { message: 'Application withdrawn successfully' };
   }
 
@@ -305,5 +316,91 @@ export class UserJobsService {
     }
 
     return jobPost.userJobs;
+  }
+
+  async saveJob(jobPostId: number, user: User): Promise<SavedJob> {
+    const jobPost = await this.jobPostRepository.findOne({
+      where: { id: jobPostId },
+    });
+
+    if (!jobPost) {
+      throw new NotFoundException('Job post not found');
+    }
+
+    const existingSave = await this.savedJobRepository.findOne({
+      where: {
+        jobPost: { id: jobPostId },
+        user: { id: user.id },
+      },
+    });
+
+    if (existingSave) {
+      throw new ConflictException('Job already saved');
+    }
+
+    const savedJob = this.savedJobRepository.create({
+      user,
+      jobPost,
+    });
+
+    return await this.savedJobRepository.save(savedJob);
+  }
+
+  async unsaveJob(jobPostId: number, user: User): Promise<void> {
+    const savedJob = await this.savedJobRepository.findOne({
+      where: {
+        jobPost: { id: jobPostId },
+        user: { id: user.id },
+      },
+    });
+
+    if (!savedJob) {
+      throw new NotFoundException('Saved job not found');
+    }
+
+    await this.savedJobRepository.remove(savedJob);
+  }
+
+  async getSavedJobs(user: User): Promise<SavedJob[]> {
+    return await this.savedJobRepository.find({
+      where: { user: { id: user.id } },
+      relations: ['jobPost', 'jobPost.employer'],
+    });
+  }
+
+  async getApplicationsByStatus(
+    user: User,
+    status: Status,
+  ): Promise<UserJob[]> {
+    return await this.userJobRepository.find({
+      where: {
+        user: { id: user.id },
+        status,
+      },
+      relations: ['jobPost', 'jobPost.employer'],
+    });
+  }
+
+  async clearJobHistory(user: User): Promise<void> {
+    await this.savedJobRepository.delete({ user: { id: user.id } });
+  }
+
+  async getJobApplicationCount(jobPostId: number): Promise<number> {
+    return await this.userJobRepository.count({
+      where: { jobPost: { id: jobPostId } },
+    });
+  }
+
+  private async updateJobPostApplicationCount(
+    jobPostId: number,
+  ): Promise<void> {
+    const count = await this.userJobRepository.count({
+      where: { jobPost: { id: jobPostId } },
+    });
+
+    await this.jobPostRepository.update(
+      { id: jobPostId },
+      { applicationCount: count },
+    );
   }
 }

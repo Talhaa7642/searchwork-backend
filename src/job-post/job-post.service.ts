@@ -15,6 +15,7 @@ import { SortOrder } from '../common/dto/pagination.dto';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { JobPostFilterDto } from './dto/job-post-filter.dto';
 import { DuplicateJobPostException } from 'src/utils/exceptions/jobPostException';
+import { UserJob } from '../user-jobs/entities/user-job.entity';
 
 @Injectable()
 export class JobPostService {
@@ -23,6 +24,8 @@ export class JobPostService {
     private jobPostRepository: Repository<JobPost>,
     @InjectRepository(Location)
     private locationRepository: Repository<Location>,
+    @InjectRepository(UserJob)
+    private userJobRepository: Repository<UserJob>,
   ) {}
 
   // async create(createJobPostDto: CreateJobPostDto, user: User) {
@@ -49,7 +52,6 @@ export class JobPostService {
   //   // }
   //   return await this.jobPostRepository.save(jobPost);
   // }
-
 
   async create(createJobPostDto: CreateJobPostDto, user: User) {
     // Check if the employer already has a job post with the same title and status 'hiring'
@@ -78,7 +80,6 @@ export class JobPostService {
     // Save the new job post
     return await this.jobPostRepository.save(jobPost);
   }
-  
 
   async findAll(
     filterDto: JobPostFilterDto,
@@ -98,14 +99,14 @@ export class JobPostService {
       status,
       search,
       location,
-      radius,
+      // radius,
     } = filterDto;
 
     const queryBuilder = this.jobPostRepository
       .createQueryBuilder('jobPost')
       .leftJoinAndSelect('jobPost.employer', 'employer')
-      .leftJoinAndSelect('employer.user', 'user')
-      // .leftJoinAndSelect('jobPost.location', 'location');
+      .leftJoinAndSelect('employer.user', 'user');
+    // .leftJoinAndSelect('jobPost.location', 'location');
 
     // Apply filters without role-based restrictions
     if (type) {
@@ -200,7 +201,18 @@ export class JobPostService {
       throw new NotFoundException('Job post not found');
     }
 
-    return jobPost;
+    // Get application count
+    const applicationCount = await this.userJobRepository.count({
+      where: { jobPost: { id } },
+    });
+
+    // Create a new instance of JobPost with the application count
+    const jobPostWithCount = Object.assign(new JobPost(), {
+      ...jobPost,
+      applicationCount,
+    });
+
+    return jobPostWithCount;
   }
 
   async update(id: number, updateJobPostDto: UpdateJobPostDto, user: User) {

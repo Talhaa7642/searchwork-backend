@@ -9,6 +9,7 @@ import {
 } from '../../utils/constants/constants';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base/base.entity';
+import { SavedJob } from '../../user-jobs/entities/saved-job.entity';
 
 @Entity()
 export class JobPost extends BaseEntity {
@@ -81,4 +82,11 @@ export class JobPost extends BaseEntity {
     onDelete: 'CASCADE',
   })
   userJobs: UserJob[];
+
+  @OneToMany(() => SavedJob, (savedJob) => savedJob.jobPost)
+  savedBy: SavedJob[];
+
+  @ApiProperty({ example: 0 })
+  @Column({ default: 0 })
+  applicationCount: number;
 }

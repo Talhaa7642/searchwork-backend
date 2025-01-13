@@ -22,8 +22,8 @@ export class D7NetworksService {
           },
         ],
         message_globals: {
-          originator: "search-work",
-        }
+          originator: 'search-work',
+        },
       };
 
       const config: AxiosRequestConfig = {
@@ -44,7 +44,9 @@ export class D7NetworksService {
           message: 'Otp sent successfully.',
         };
       } else {
-        throw new Error(`Failed to send OTP. D7 Networks API responded with status ${response.status}`);
+        throw new Error(
+          `Failed to send OTP. D7 Networks API responded with status ${response.status}`,
+        );
       }
     } catch (error) {
       console.error(error);
