@@ -1,6 +1,6 @@
 // d7-networks.module.ts
 import { Module } from '@nestjs/common';
-import { D7NetworksService } from './d7.service'
+import { D7NetworksService } from './d7.service';
 
 @Module({
   providers: [D7NetworksService],

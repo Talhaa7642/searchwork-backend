@@ -9,6 +9,7 @@ import { UserJob } from '../src/user-jobs/entities/user-job.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Feedback } from '../src/user/entities/feedback.entity';
 import { SupportTicket } from '../src/user/entities/supportTicket.entity';
+import { SavedJob } from '../src/user-jobs/entities/saved-job.entity';
 
 config();
 
@@ -19,7 +20,17 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [Location, User, JobSeeker, Employer, JobPost, UserJob, Feedback, SupportTicket],
+  entities: [
+    Location,
+    User,
+    JobSeeker,
+    Employer,
+    JobPost,
+    UserJob,
+    Feedback,
+    SupportTicket,
+    SavedJob,
+  ],
   migrations: [__dirname + '/migrations/*.ts'],
   synchronize: false,
   logging: false,

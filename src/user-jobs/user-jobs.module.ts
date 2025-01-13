@@ -8,10 +8,18 @@ import { User } from '../user/entities/user.entity';
 import { JobSeeker } from '../job-seeker/entities/job-seeker.entity';
 import { AuthModule } from '../auth/auth.module';
 import { Employer } from '../employer/entities/employer.entity';
+import { SavedJob } from './entities/saved-job.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserJob, JobPost, User, JobSeeker, Employer]),
+    TypeOrmModule.forFeature([
+      UserJob,
+      JobPost,
+      User,
+      JobSeeker,
+      Employer,
+      SavedJob,
+    ]),
     AuthModule,
   ],
   controllers: [UserJobsController],

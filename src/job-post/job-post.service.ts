@@ -15,6 +15,7 @@ import { SortOrder } from '../common/dto/pagination.dto';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { JobPostFilterDto } from './dto/job-post-filter.dto';
 import { DuplicateJobPostException } from 'src/utils/exceptions/jobPostException';
+import { UserJob } from '../user-jobs/entities/user-job.entity';
 
 @Injectable()
 export class JobPostService {
@@ -23,6 +24,8 @@ export class JobPostService {
     private jobPostRepository: Repository<JobPost>,
     @InjectRepository(Location)
     private locationRepository: Repository<Location>,
+    @InjectRepository(UserJob)
+    private userJobRepository: Repository<UserJob>,
   ) {}
 
   // async create(createJobPostDto: CreateJobPostDto, user: User) {
@@ -50,7 +53,6 @@ export class JobPostService {
   //   return await this.jobPostRepository.save(jobPost);
   // }
 
-
   async create(createJobPostDto: CreateJobPostDto, user: User) {
     // Check if the employer already has a job post with the same title and status 'hiring'
     const existingJobPost = await this.jobPostRepository.findOne({
@@ -61,11 +63,11 @@ export class JobPostService {
         employerId: user.employerProfile.id, // Ensure the employer is the same
       },
     });
-  
+
     if (existingJobPost) {
-      throw new DuplicateJobPostException();  // Throw the custom exception
+      throw new DuplicateJobPostException(); // Throw the custom exception
     }
-  
+
     const jobPost = new JobPost();
     jobPost.title = createJobPostDto.title;
     jobPost.salary = createJobPostDto.salary;
@@ -74,14 +76,14 @@ export class JobPostService {
     jobPost.availability = createJobPostDto.availability;
     jobPost.employerId = user.employerProfile.id;
     jobPost.location = createJobPostDto.location;
-  
+
     // Save the new job post
     return await this.jobPostRepository.save(jobPost);
   }
-  
 
   async findAll(
     filterDto: JobPostFilterDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     user?: User,
   ): Promise<PaginatedResponse<JobPost>> {
     const {
@@ -98,14 +100,14 @@ export class JobPostService {
       status,
       search,
       location,
-      radius,
+      // radius,
     } = filterDto;
 
     const queryBuilder = this.jobPostRepository
       .createQueryBuilder('jobPost')
       .leftJoinAndSelect('jobPost.employer', 'employer')
-      .leftJoinAndSelect('employer.user', 'user')
-      // .leftJoinAndSelect('jobPost.location', 'location');
+      .leftJoinAndSelect('employer.user', 'user');
+    // .leftJoinAndSelect('jobPost.location', 'location');
 
     // Apply filters without role-based restrictions
     if (type) {
@@ -200,7 +202,18 @@ export class JobPostService {
       throw new NotFoundException('Job post not found');
     }
 
-    return jobPost;
+    // Get application count
+    const applicationCount = await this.userJobRepository.count({
+      where: { jobPost: { id } },
+    });
+
+    // Create a new instance of JobPost with the application count
+    const jobPostWithCount = Object.assign(new JobPost(), {
+      ...jobPost,
+      applicationCount,
+    });
+
+    return jobPostWithCount;
   }
 
   async update(id: number, updateJobPostDto: UpdateJobPostDto, user: User) {
