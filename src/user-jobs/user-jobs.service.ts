@@ -16,6 +16,7 @@ import { PaginatedResponse } from '../common/interfaces/paginated-response.inter
 import { Role, Status } from '../utils/constants/constants';
 import { SortOrder } from '../common/dto/pagination.dto';
 import { SavedJob } from './entities/saved-job.entity';
+import { Notification } from '../notifications/entities/notification.entity';
 
 @Injectable()
 export class UserJobsService {
@@ -26,6 +27,8 @@ export class UserJobsService {
     private readonly jobPostRepository: Repository<JobPost>,
     @InjectRepository(SavedJob)
     private readonly savedJobRepository: Repository<SavedJob>,
+    @InjectRepository(Notification)
+    private readonly notificationRepository: Repository<Notification>,
   ) {}
 
   async create(
@@ -35,13 +38,12 @@ export class UserJobsService {
     // Profile check is handled by guard
     const jobPost = await this.jobPostRepository.findOne({
       where: { id: createUserJobDto.jobPostId },
+      relations: ['employer'],
     });
 
     if (!jobPost) {
       throw new NotFoundException('Job post not found');
     }
-
-    // Check if user has already applied
     const existingApplication = await this.userJobRepository.findOne({
       where: {
         jobPost: { id: createUserJobDto.jobPostId },
@@ -60,7 +62,14 @@ export class UserJobsService {
       status: Status.Applied,
       appliedAt: new Date(),
     });
-
+    console.log(jobPost, user, '============')
+    await this.notificationRepository.save({
+      jobPost,
+      user: user,
+      message: `User ${user.fullName} has applied to your job post "${jobPost.title}".`,
+      isRead: false,
+    });
+  
     const savedUserJob = await this.userJobRepository.save(userJob);
 
     await this.updateJobPostApplicationCount(jobPost.id);
@@ -372,6 +381,7 @@ export class UserJobsService {
     user: User,
     status: Status,
   ): Promise<UserJob[]> {
+    console.log(user,'====user------', status)
     return await this.userJobRepository.find({
       where: {
         user: { id: user.id },

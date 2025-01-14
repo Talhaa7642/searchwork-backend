@@ -193,7 +193,7 @@ export class UserJobsController {
 
   @Get('applications/status/:status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Employee)
+  // @Roles(Role.Employee)
   @ApiOperation({ summary: 'Get applications by status' })
   getApplicationsByStatus(
     @Param('status') status: Status,

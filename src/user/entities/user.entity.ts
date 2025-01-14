@@ -17,6 +17,7 @@ import { BaseEntity } from '../../common/base/base.entity';
 import { Feedback } from './feedback.entity';
 import { SupportTicket } from './supportTicket.entity';
 import { SavedJob } from '../../user-jobs/entities/saved-job.entity';
+import { Notification } from '../../notifications/entities/notification.entity';
 
 @Entity()
 @Index(['email', 'phoneNumber'], { unique: true })
@@ -129,4 +130,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => SavedJob, (savedJob) => savedJob.user)
   savedJobs: SavedJob[];
+ 
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 }
