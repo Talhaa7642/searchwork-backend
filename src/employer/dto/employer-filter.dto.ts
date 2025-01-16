@@ -49,4 +49,4 @@ export class EmployerFilterDto extends PaginationDto {
   @IsOptional()
   @IsString()
   search?: string;
-} 
+}

@@ -29,7 +29,15 @@ import { S3Service } from 'src/utils/s3Services/s3Services';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, MailService, RolesGuard, UserService, D7NetworksService, S3Service],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    MailService,
+    RolesGuard,
+    UserService,
+    D7NetworksService,
+    S3Service,
+  ],
   controllers: [AuthController],
   exports: [AuthService, RolesGuard],
 })

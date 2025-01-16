@@ -15,7 +15,13 @@ import { SupportTicket } from './entities/supportTicket.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Employer, JobSeeker, Feedback, SupportTicket]),
+    TypeOrmModule.forFeature([
+      User,
+      Employer,
+      JobSeeker,
+      Feedback,
+      SupportTicket,
+    ]),
     forwardRef(() => AuthModule),
   ],
   controllers: [UserController, FeedbackController, SupportTicketController],

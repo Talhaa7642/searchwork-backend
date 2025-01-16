@@ -16,6 +16,7 @@ import { PaginatedResponse } from '../common/interfaces/paginated-response.inter
 import { JobPostFilterDto } from './dto/job-post-filter.dto';
 import { DuplicateJobPostException } from 'src/utils/exceptions/jobPostException';
 import { UserJob } from '../user-jobs/entities/user-job.entity';
+import { SavedJob } from '../user-jobs/entities/saved-job.entity';
 
 @Injectable()
 export class JobPostService {
@@ -26,6 +27,8 @@ export class JobPostService {
     private locationRepository: Repository<Location>,
     @InjectRepository(UserJob)
     private userJobRepository: Repository<UserJob>,
+    @InjectRepository(SavedJob)
+    private savedJobRepository: Repository<SavedJob>,
   ) {}
 
   // async create(createJobPostDto: CreateJobPostDto, user: User) {
@@ -181,8 +184,26 @@ export class JobPostService {
       .take(limit)
       .getManyAndCount();
 
+    // Check if the user has saved jobs
+    const savedJobIds = user
+      ? await this.savedJobRepository
+          .find({
+            where: { user: { id: user.id } },
+            relations: ['jobPost'],
+          })
+          .then((savedJobs) => savedJobs.map((savedJob) => savedJob.jobPost.id))
+      : [];
+
+    const itemsWithSavedStatus = items.map((item) => {
+      const jobPostWithSavedStatus = new JobPost();
+      Object.assign(jobPostWithSavedStatus, item, {
+        isSaved: savedJobIds.includes(item.id), // Add saved status
+      });
+      return jobPostWithSavedStatus;
+    });
+
     return {
-      items,
+      items: itemsWithSavedStatus,
       meta: {
         total,
         page,

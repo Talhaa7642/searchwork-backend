@@ -18,36 +18,38 @@ export class NotificationsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createNotificationDto: CreateNotificationDto): Promise<Notification> {
-
+  async create(
+    createNotificationDto: CreateNotificationDto,
+  ): Promise<Notification> {
     const jobPost = await this.jobPostRepository.findOne({
       where: { id: createNotificationDto.jobPostId },
     });
-  
+
     const user = await this.userRepository.findOne({
       where: { id: createNotificationDto.userId },
     });
-  
+
     if (!jobPost) {
       throw new Error('Job post not found');
     }
-  
+
     if (!user) {
       throw new Error('User not found');
     }
-  
+
     const notification = this.notificationRepository.create({
       jobPost,
       user,
       message: createNotificationDto.message,
       isRead: createNotificationDto.isRead,
     });
-  
+
     return this.notificationRepository.save(notification);
   }
-  
 
-  async getNotificationsForEmployer(employerId: number): Promise<Notification[]> {
+  async getNotificationsForEmployer(
+    employerId: number,
+  ): Promise<Notification[]> {
     return this.notificationRepository.find({
       where: {
         jobPost: {
@@ -68,7 +70,10 @@ export class NotificationsService {
     });
   }
 
-  async update(id: number, updateNotificationDto: UpdateNotificationDto): Promise<Notification> {
+  async update(
+    id: number,
+    updateNotificationDto: UpdateNotificationDto,
+  ): Promise<Notification> {
     await this.notificationRepository.update(id, updateNotificationDto);
     return this.findOne(id);
   }
@@ -77,4 +82,3 @@ export class NotificationsService {
     await this.notificationRepository.delete(id);
   }
 }
-

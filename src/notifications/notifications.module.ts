@@ -8,16 +8,18 @@ import { JobPost } from 'src/job-post/entities/job-post.entity';
 import { Notification } from './entities/notification.entity';
 import { Employer } from 'src/employer/entities/employer.entity';
 
-@Module({
-})
-
+@Module({})
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Notification, Employer, JobSeeker, User, JobPost]),
+    TypeOrmModule.forFeature([
+      Notification,
+      Employer,
+      JobSeeker,
+      User,
+      JobPost,
+    ]),
   ],
   controllers: [NotificationsController],
   providers: [NotificationsService],
 })
-
-
 export class NotificationsModule {}

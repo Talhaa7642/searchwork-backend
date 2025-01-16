@@ -29,8 +29,6 @@ import { Role } from '../utils/constants/constants';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { UserJobResponseDto } from './dto/user-job-response.dto';
-import { SaveJobDto } from './dto/save-job.dto';
-import { Status } from '../utils/constants/constants';
 
 @ApiTags('user-jobs')
 @ApiBearerAuth('JWT-auth')

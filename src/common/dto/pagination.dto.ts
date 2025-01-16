@@ -48,4 +48,4 @@ export class PaginationDto {
   @IsOptional()
   @IsEnum(SortOrder)
   sortOrder?: SortOrder = SortOrder.DESC;
-} 
+}

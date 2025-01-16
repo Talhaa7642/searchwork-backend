@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employer } from './entities/employer.entity';
@@ -18,7 +22,10 @@ export class EmployerService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(userId: number, createEmployerDto: CreateEmployerDto): Promise<Employer> {
+  async create(
+    userId: number,
+    createEmployerDto: CreateEmployerDto,
+  ): Promise<Employer> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });
@@ -44,7 +51,9 @@ export class EmployerService {
     return await this.employerRepository.save(newEmployer);
   }
 
-  async findAll(filterDto: EmployerFilterDto): Promise<PaginatedResponse<Employer>> {
+  async findAll(
+    filterDto: EmployerFilterDto,
+  ): Promise<PaginatedResponse<Employer>> {
     const {
       page = 1,
       limit = 10,
@@ -63,9 +72,12 @@ export class EmployerService {
       .leftJoinAndSelect('employer.jobPosts', 'jobPosts');
 
     if (companyName) {
-      queryBuilder.andWhere('LOWER(employer.companyName) LIKE LOWER(:companyName)', {
-        companyName: `%${companyName}%`,
-      });
+      queryBuilder.andWhere(
+        'LOWER(employer.companyName) LIKE LOWER(:companyName)',
+        {
+          companyName: `%${companyName}%`,
+        },
+      );
     }
 
     if (industry) {

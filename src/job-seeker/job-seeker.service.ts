@@ -131,7 +131,7 @@ export class JobSeekerService {
     if (existingProfile) {
       throw new UnauthorizedException('User already has a job seeker profile');
     }
-  
+
     // Handle profile image upload
     let profileImageUrl: string | undefined;
     if (createJobSeekerDto.image) {
@@ -142,25 +142,24 @@ export class JobSeekerService {
           mime: 'image/jpeg', // Update as per the actual image format
         },
       });
-  
+
       profileImageUrl = uploadResult.Location; // Extract the uploaded image URL
     }
-  
+
     // Update the user's profile image
     if (profileImageUrl) {
       user.profileImageUrl = profileImageUrl; // Ensure `profileImage` is a field in your `User` entity
       await this.userRepository.save(user);
     }
-  
+
     // Create the new job seeker profile
     const newJobSeeker = this.jobSeekerRepository.create({
       ...createJobSeekerDto,
       user,
     });
-  
+
     return await this.jobSeekerRepository.save(newJobSeeker);
   }
-  
 
   async update(
     id: number,

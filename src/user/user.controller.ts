@@ -37,7 +37,9 @@ export class UserController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
-  @ApiOperation({ summary: 'Get all users with pagination and filters (Admin only)' })
+  @ApiOperation({
+    summary: 'Get all users with pagination and filters (Admin only)',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns paginated users',
