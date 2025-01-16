@@ -1,16 +1,21 @@
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User } from '../user/entities/user.entity';
+import { UserJobResponseDto } from './dto/user-job-response.dto';
+import { SaveJobDto } from './dto/save-job.dto';
+import { Role, Status } from '../utils/constants/constants';
 import {
   Controller,
-  Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   UseGuards,
-  Query,
-  ValidationPipe,
   HttpStatus,
+  Body,
+  ValidationPipe,
+  Get,
+  Query,
+  Param,
   ParseIntPipe,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,17 +23,13 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { UserJobsService } from './user-jobs.service';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { CreateUserJobDto } from './dto/create-user-job.dto';
 import { UpdateUserJobDto } from './dto/update-user-job.dto';
 import { UserJobFilterDto } from './dto/user-job-filter.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../utils/constants/constants';
-import { GetUser } from '../auth/decorators/get-user.decorator';
-import { User } from '../user/entities/user.entity';
-import { UserJobResponseDto } from './dto/user-job-response.dto';
+import { UserJobsService } from './user-jobs.service';
 
 @ApiTags('user-jobs')
 @ApiBearerAuth('JWT-auth')
@@ -160,5 +161,51 @@ export class UserJobsController {
     @GetUser() user: User,
   ) {
     return this.userJobsService.findByJobPost(jobId, user);
+  }
+
+  @Post('save')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employee)
+  @ApiOperation({ summary: 'Save a job for later' })
+  saveJob(@Body(ValidationPipe) saveJobDto: SaveJobDto, @GetUser() user: User) {
+    return this.userJobsService.saveJob(saveJobDto.jobPostId, user);
+  }
+
+  @Delete('save/:jobPostId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employee)
+  @ApiOperation({ summary: 'Remove a saved job' })
+  unsaveJob(
+    @Param('jobPostId', ParseIntPipe) jobPostId: number,
+    @GetUser() user: User,
+  ) {
+    return this.userJobsService.unsaveJob(jobPostId, user);
+  }
+
+  @Get('saved')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employee)
+  @ApiOperation({ summary: 'Get all saved jobs' })
+  getSavedJobs(@GetUser() user: User) {
+    return this.userJobsService.getSavedJobs(user);
+  }
+
+  @Get('applications/status/:status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employee)
+  @ApiOperation({ summary: 'Get applications by status' })
+  getApplicationsByStatus(
+    @Param('status') status: Status,
+    @GetUser() user: User,
+  ) {
+    return this.userJobsService.getApplicationsByStatus(user, status);
+  }
+
+  @Delete('history')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employee)
+  @ApiOperation({ summary: 'Clear saved jobs history' })
+  clearJobHistory(@GetUser() user: User) {
+    return this.userJobsService.clearJobHistory(user);
   }
 }
