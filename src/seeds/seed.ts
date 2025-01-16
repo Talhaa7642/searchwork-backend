@@ -7,9 +7,9 @@ import { JobSeeker } from '../job-seeker/entities/job-seeker.entity';
 import {
   Role,
   Gender,
-  Status,
   JobType,
   JobAvailability,
+  Status,
 } from '../utils/constants/constants';
 
 const seedData = async (dataSource: DataSource) => {

@@ -2,7 +2,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpStatus,
   ParseFilePipeBuilder,
   Post,
@@ -12,7 +11,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiOperation,
-  ApiOkResponse,
   ApiTags,
   ApiConsumes,
   ApiCreatedResponse,
@@ -21,19 +19,10 @@ import {
 import { AppService } from './app.service';
 import { UploadFileResponse, UploadFileBody } from './user/dto/upload-file.dto';
 
-@ApiTags('root')
+@ApiTags('upload-image')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
-  @ApiOperation({ summary: 'Health check' })
-  @ApiOkResponse({
-    description: 'Never been better!',
-  })
-  @Get()
-  checkHealth(): string {
-    return this.appService.ping();
-  }
 
   @ApiOperation({ summary: 'Upload user files' })
   @ApiCreatedResponse({

@@ -14,6 +14,7 @@ import { LocationModule } from './location/location.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { S3Service } from './utils/s3Services/s3Services';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { S3Service } from './utils/s3Services/s3Services';
     EmployerModule,
     UserJobsModule,
     LocationModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
 

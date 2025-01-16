@@ -10,6 +10,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Feedback } from '../src/user/entities/feedback.entity';
 import { SupportTicket } from '../src/user/entities/supportTicket.entity';
 import { SavedJob } from '../src/user-jobs/entities/saved-job.entity';
+import { Notification } from '../src/notifications/entities/notification.entity';
 
 config();
 
@@ -30,6 +31,7 @@ export const dataSourceOptions: DataSourceOptions = {
     Feedback,
     SupportTicket,
     SavedJob,
+    Notification,
   ],
   migrations: [__dirname + '/migrations/*.ts'],
   synchronize: false,
