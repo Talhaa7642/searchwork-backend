@@ -16,6 +16,7 @@ import { PaginatedResponse } from '../common/interfaces/paginated-response.inter
 import { JobPostFilterDto } from './dto/job-post-filter.dto';
 import { DuplicateJobPostException } from 'src/utils/exceptions/jobPostException';
 import { UserJob } from '../user-jobs/entities/user-job.entity';
+import { SavedJob } from '../user-jobs/entities/saved-job.entity';
 
 @Injectable()
 export class JobPostService {
@@ -26,6 +27,8 @@ export class JobPostService {
     private locationRepository: Repository<Location>,
     @InjectRepository(UserJob)
     private userJobRepository: Repository<UserJob>,
+    @InjectRepository(SavedJob)
+    private savedJobRepository: Repository<SavedJob>,
   ) {}
 
   // async create(createJobPostDto: CreateJobPostDto, user: User) {
@@ -179,17 +182,50 @@ export class JobPostService {
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();
+    // Check if the user has saved jobs
+    const appliedJobIds = user
+    ? await this.userJobRepository
+        .find({
+          where: { user: { id: user.id } },
+          relations: ['jobPost'],
+        })
+        .then((appliedJobs) =>
+          appliedJobs.map((appliedJob) => appliedJob.jobPost.id),
+        )
+    : [];
 
-    return {
-      items,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
+  // Check if the user has saved jobs
+  const savedJobIds = user
+    ? await this.savedJobRepository
+        .find({
+          where: { user: { id: user.id } },
+          relations: ['jobPost'],
+        })
+        .then((savedJobs) => savedJobs.map((savedJob) => savedJob.jobPost.id))
+    : [];
+
+  console.log('Applied Job IDs:', appliedJobIds);
+  console.log('Saved Job IDs:', savedJobIds);
+
+  const itemsWithStatuses = items.map((item) => {
+    const jobPostWithStatuses = new JobPost();
+    Object.assign(jobPostWithStatuses, item, {
+      isApplied: appliedJobIds.includes(item.id), // Add application status
+      isSaved: savedJobIds.includes(item.id), // Add saved status
+    });
+    return jobPostWithStatuses;
+  });
+
+  return {
+    items: itemsWithStatuses,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
 
   async findOne(id: number): Promise<JobPost> {
     const jobPost = await this.jobPostRepository.findOne({

@@ -38,6 +38,15 @@ import { Status } from '../utils/constants/constants';
 export class UserJobsController {
   constructor(private readonly userJobsService: UserJobsService) {}
 
+  @Get('savedJobs')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employee)
+  @ApiOperation({ summary: 'Get all saved jobs' })
+  getSavedJobs(@GetUser() user: User) {
+    console.log(user, '======userrr======')
+    return this.userJobsService.getSavedJobs(user);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Employee)
@@ -181,14 +190,6 @@ export class UserJobsController {
     @GetUser() user: User,
   ) {
     return this.userJobsService.unsaveJob(jobPostId, user);
-  }
-
-  @Get('saved')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Employee)
-  @ApiOperation({ summary: 'Get all saved jobs' })
-  getSavedJobs(@GetUser() user: User) {
-    return this.userJobsService.getSavedJobs(user);
   }
 
   @Get('applications/status/:status')

@@ -68,6 +68,8 @@ export class JobPostController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Employee)
   @ApiOperation({
     summary: 'Get all job posts with pagination and filters',
     description: 'Public endpoint - Anyone can view job posts',
@@ -77,8 +79,8 @@ export class JobPostController {
     description: 'Returns paginated job posts',
     type: JobPostResponseDto,
   })
-  findAll(@Query(ValidationPipe) filterDto: JobPostFilterDto) {
-    return this.jobPostService.findAll(filterDto);
+  findAll(@Query(ValidationPipe) filterDto: JobPostFilterDto, @GetUser() user: User,) {
+    return this.jobPostService.findAll(filterDto, user);
   }
 
   @Get(':id')

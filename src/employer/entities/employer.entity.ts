@@ -31,6 +31,13 @@ export class Employer extends BaseEntity {
   @Column({ nullable: true })
   registrationNumber: string;
 
+  @ApiProperty({
+    example: true,
+    description: 'Indicates whether the employer wants to hide their profile data in job posts',
+  })
+  @Column({ default: false })
+  hideProfileData: boolean;
+
   // Table relations
   // One-to-Many relationship with JobPost, allows an employer to have multiple job postings
   // If the employer is deleted, all associated job posts will also be deleted

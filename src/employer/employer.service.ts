@@ -138,6 +138,19 @@ export class EmployerService {
     return await this.employerRepository.save(employer);
   }
 
+  async updateEmployer(id: number, updateEmployerDto: UpdateEmployerDto) {
+    const employer = await this.employerRepository.findOne({
+      where: {user: { id: id } },
+      relations: ['user'],
+    });
+    if (!employer) {
+      throw new NotFoundException('Employer not found');
+    }
+  
+    Object.assign(employer, updateEmployerDto);
+    return this.employerRepository.save(employer);
+  }
+
   async remove(id: number, user: User): Promise<{ message: string }> {
     const employer = await this.findOne(id);
 

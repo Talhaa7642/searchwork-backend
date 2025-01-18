@@ -15,7 +15,10 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+    example: false,
+  })
   @IsBoolean()
   isRead: false
 }

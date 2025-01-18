@@ -49,16 +49,25 @@ export class NotificationsService {
 
   async getNotificationsForEmployer(employerId: number): Promise<Notification[]> {
     return this.notificationRepository.find({
-      where: {
-        jobPost: {
-          employer: {
-            id: employerId,
-          },
-        },
-      },
+      where: { user: { id: employerId } },
       relations: ['jobPost', 'user'],
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async markAllNotificationsAsRead(employerId: number): Promise<void> {
+    await this.notificationRepository.update(
+      { user: { id: employerId }, isRead: false }, // Update only unread notifications
+      { isRead: true },
+    );
+  }
+
+  async markNotificationAsRead(notificationId: number): Promise<Notification> {
+    await this.notificationRepository.update(
+      { id: notificationId, isRead: false },
+      { isRead: true },
+    );
+    return this.findOne(notificationId);
   }
 
   findOne(id: number): Promise<Notification> {
@@ -69,12 +78,40 @@ export class NotificationsService {
   }
 
   async update(id: number, updateNotificationDto: UpdateNotificationDto): Promise<Notification> {
-    await this.notificationRepository.update(id, updateNotificationDto);
-    return this.findOne(id);
+    const { jobPostId, userId, ...otherUpdates } = updateNotificationDto;
+  
+    // Find the existing notification
+    const notification = await this.findOne(id);
+    if (!notification) {
+      throw new Error('Notification not found');
+    }
+  
+    // Update related entities if provided
+    if (jobPostId) {
+      const jobPost = await this.jobPostRepository.findOne({ where: { id: jobPostId } });
+      if (!jobPost) {
+        throw new Error('Job post not found');
+      }
+      notification.jobPost = jobPost;
+    }
+  
+    if (userId) {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      notification.user = user;
+    }
+  
+    // Update other fields
+    Object.assign(notification, otherUpdates);
+  
+    // Save updated notification
+    return this.notificationRepository.save(notification);
   }
+  
 
   async remove(id: number): Promise<void> {
     await this.notificationRepository.delete(id);
   }
 }
-

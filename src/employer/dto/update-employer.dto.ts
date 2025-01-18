@@ -1,4 +1,10 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateEmployerDto } from './create-employer.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsOptional } from 'class-validator';
 
-export class UpdateEmployerDto extends PartialType(CreateEmployerDto) {}
+
+export class UpdateEmployerDto {
+  @ApiProperty({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  hideProfileData?: boolean;
+}

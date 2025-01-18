@@ -29,74 +29,97 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { EmployerResponseDto } from './dto/employer-response.dto';
 
-@ApiTags('employers')
+@ApiTags('Employers')
 @ApiBearerAuth('JWT-auth')
 @Controller('employers')
 export class EmployerController {
   constructor(private readonly employerService: EmployerService) {}
 
-  @Post()
+  @Post('create')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Employer)
-  @ApiOperation({ summary: 'Create an employer profile' })
+  @ApiOperation({ summary: 'Create a new employer profile' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Profile created successfully',
+    description: 'Employer profile created successfully.',
     type: EmployerResponseDto,
   })
-  create(
+  createEmployer(
     @Body(ValidationPipe) createEmployerDto: CreateEmployerDto,
     @GetUser() user: User,
   ) {
     return this.employerService.create(user.id, createEmployerDto);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all employers with pagination and filters' })
+  @Get('list')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employer)
+  @ApiOperation({ summary: 'Retrieve a list of employers with filters and pagination' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns paginated employers',
+    description: 'List of employers retrieved successfully.',
     type: EmployerResponseDto,
   })
-  findAll(@Query(ValidationPipe) filterDto: EmployerFilterDto) {
+  getEmployers(@Query(ValidationPipe) filterDto: EmployerFilterDto) {
     return this.employerService.findAll(filterDto);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get employer by ID' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employer)
+  @ApiOperation({ summary: 'Get details of a specific employer by ID' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns the employer profile',
+    description: 'Employer details retrieved successfully.',
     type: EmployerResponseDto,
   })
-  findOne(@Param('id') id: string) {
+  getEmployerById(@Param('id') id: number) {
     return this.employerService.findOne(+id);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update employer profile' })
+  @Patch('update/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employer)
+  @ApiOperation({ summary: 'Update employer profile details' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Profile updated successfully',
+    description: 'Employer profile updated successfully.',
     type: EmployerResponseDto,
   })
-  update(
-    @Param('id') id: string,
+  updateEmployer(
+    @Param('id') id: number,
     @Body(ValidationPipe) updateEmployerDto: UpdateEmployerDto,
     @GetUser() user: User,
   ) {
     return this.employerService.update(+id, updateEmployerDto, user);
   }
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Delete employer profile' })
+  @Patch('toggle-visibility')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employer)
+  @ApiOperation({ summary: 'Toggle visibility of employer profile data' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Profile deleted successfully',
+    description: 'Employer profile visibility updated successfully.',
+    type: EmployerResponseDto,
   })
-  remove(@Param('id') id: string, @GetUser() user: User) {
+  toggleEmployerVisibility(
+    // @Param('id') id: number,
+    @GetUser() user: User,
+    @Body(ValidationPipe) updateEmployerDto: UpdateEmployerDto,
+  ) {
+    return this.employerService.updateEmployer(user.id, updateEmployerDto);
+  }
+
+  @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employer)
+  @ApiOperation({ summary: 'Delete an employer profile' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Employer profile deleted successfully.',
+  })
+  deleteEmployer(@Param('id') id: number, @GetUser() user: User) {
     return this.employerService.remove(+id, user);
   }
 }
