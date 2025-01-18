@@ -104,14 +104,6 @@ export class ResetPasswordDto {
   @IsEmail()
   email: string;
 
-  // @ApiProperty({
-  //   example: '1234',
-  //   description: 'OTP sent to the user for verification',
-  // })
-  // @IsString()
-  // @IsNotEmpty()
-  // otp: string;
-
   @ApiProperty({
     example: 'newpassword123',
     description: 'New password for the user account',

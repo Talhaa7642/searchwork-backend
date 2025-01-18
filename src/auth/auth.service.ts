@@ -1,5 +1,4 @@
-// auth.service.ts
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,7 +13,6 @@ import { JobSeeker } from 'src/job-seeker/entities/job-seeker.entity';
 import { UserService } from 'src/user/user.service';
 import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
 import { S3Service } from 'src/utils/s3Services/s3Services';
-import crypto from 'crypto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -151,7 +149,6 @@ export class AuthService {
     const generatedEmail = email || generateRandomEmail(userData);
     const generatedFullName = fullName || 'Anonymous User';
 
-    // Find user by platform and token
     let user = await this.userRepository.findOne({
       where: { platform, platform_token },
     });
@@ -159,30 +156,27 @@ export class AuthService {
     let imageUrl: string | null = null;
 
     if (image) {
-      // const tokenHash = crypto.createHash('sha256').update(platform_token).digest('hex');
 
-      // Upload image to S3 and get the URL
       const file = {
-        path: `social-login-images/${Date.now()}.jpg`, // Use hash instead of full token
-        data: image, // Assume image is base64-encoded
-        mime: 'image/jpeg', // Set appropriate MIME type
+        path: `social-login-images/${Date.now()}.jpg`,
+        data: image,
+        mime: 'image/jpeg',
       };
       const uploadResult = await this.s3Service.uploadFile(file);
-      imageUrl = uploadResult?.Location; // Get S3 file URL
+      imageUrl = uploadResult?.Location;
     }
     console.log("imageUrl", imageUrl);
     if (user) {
       const token = this.jwtService.sign({ userId: user.id, platform: user.platform });
       return { user, token };
     } else {
-      // Create a new user
       const newUser = this.userRepository.create({
         email: generatedEmail,
         fullName: generatedFullName,
         platform,
         platform_token,
         isEmailVerified: true,
-        profileImageUrl: imageUrl, // Save the uploaded image URL
+        profileImageUrl: imageUrl,
       });
 
       await this.userRepository.save(newUser);
@@ -234,34 +228,6 @@ export class AuthService {
     return { success: true, message: 'Phone verified successfully' };
   }
   
-
-  // async logout(userId: string): Promise<void> {
-  //   // Example: Add the user's current token to a blacklist
-  //   // You could use a Redis store or database table to store blacklisted tokens
-  //   const token = await this.getTokenFromRequest(); // Implement a method to get the token from the request headers
-  //   if (token) {
-  //     await this.addToTokenBlacklist(token, userId); // Implement a helper method for blacklisting
-  //   } else {
-  //     throw new BadRequestException('Token not found');
-  //   }
-  // }
-
-  // async deleteAccount(userId: number): Promise<void> {
-  //   const user = await this.userRepository.findOne({ where: { id: userId } });
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-
-  //   if (user.role === Role.Employer) {
-  //     await this.employerRepository.delete({ user: { id: userId } });
-  //   } else if (user.role === Role.Employee) {
-  //     await this.jobSeekerRepository.delete({ user: { id: userId } });
-  //   }
-
-  //   await this.userRepository.delete(userId);
-  // }
-
-
   private async generateAndSendOtp(email?: string, phoneNumber?: string) {
     console.log("email", email, "phoneNumber", phoneNumber);
     const otp = Math.floor(1000 + Math.random() * 9000).toString();

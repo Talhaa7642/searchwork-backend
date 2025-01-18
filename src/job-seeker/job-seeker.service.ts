@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   NotFoundException,
@@ -132,27 +131,24 @@ export class JobSeekerService {
       throw new UnauthorizedException('User already has a job seeker profile');
     }
   
-    // Handle profile image upload
     let profileImageUrl: string | undefined;
     if (createJobSeekerDto.image) {
       const uploadResult = await this.s3Service.uploadFile({
         imageObject: {
-          path: `users/${user.id}/profile.jpg`, // Specify the path structure
+          path: `users/${user.id}/profile.jpg`,
           data: createJobSeekerDto.image,
-          mime: 'image/jpeg', // Update as per the actual image format
+          mime: 'image/jpeg',
         },
       });
   
-      profileImageUrl = uploadResult.Location; // Extract the uploaded image URL
+      profileImageUrl = uploadResult.Location;
     }
   
-    // Update the user's profile image
     if (profileImageUrl) {
-      user.profileImageUrl = profileImageUrl; // Ensure `profileImage` is a field in your `User` entity
+      user.profileImageUrl = profileImageUrl;
       await this.userRepository.save(user);
     }
   
-    // Create the new job seeker profile
     const newJobSeeker = this.jobSeekerRepository.create({
       ...createJobSeekerDto,
       user,
