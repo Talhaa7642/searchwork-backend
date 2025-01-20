@@ -3,10 +3,17 @@ import { S3Service } from './utils/s3Services/s3Services';
 import { BaseService } from './common/base/base.service';
 import { UploadFileResponse } from './user/dto/upload-file.dto';
 import { v4 as uuid } from 'uuid';
+import { Repository } from 'typeorm';
+import { User } from './user/entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AppService extends BaseService {
-  constructor(private s3Service: S3Service) {
+  constructor(
+    private readonly s3Service: S3Service,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {
     super();
   }
 
@@ -14,7 +21,7 @@ export class AppService extends BaseService {
     return 'Never been better!';
   }
 
-  async uploadFile(file: Express.Multer.File): Promise<UploadFileResponse> {
+  async uploadFile(id: number, file: Express.Multer.File): Promise<UploadFileResponse> {
     const fileKey = `${uuid()}-${file.originalname}`;
 
     const fileObject = {
@@ -28,7 +35,20 @@ export class AppService extends BaseService {
     if (!result) {
       throw new Error('File upload failed');
     }
-
+  
+    const existingUser = await this.userRepository.findOne({
+      where: { id },
+    });
+  
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+  
+    existingUser.profileImageUrl = result.Location;
+  
+    await this.userRepository.save(existingUser);
+  
     return new UploadFileResponse(result.Key, result.Location);
   }
+  
 }

@@ -1,6 +1,4 @@
 import type { JwtModuleOptions } from '@nestjs/jwt';
-
-// helper class to create jwt config
 export class JwtConfig {
   static createConfig(): () => {
     jwtAccess: JwtModuleOptions;

@@ -15,6 +15,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { S3Service } from './utils/s3Services/s3Services';
 import { NotificationsModule } from './notifications/notifications.module';
+import { User } from './user/entities/user.entity';
 
 @Module({
   imports: [
@@ -23,9 +24,10 @@ import { NotificationsModule } from './notifications/notifications.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
+    TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forFeature([User]),
     AuthModule,
     UserModule,
-    TypeOrmModule.forRoot(dataSourceOptions),
     JobPostModule,
     JobSeekerModule,
     EmployerModule,

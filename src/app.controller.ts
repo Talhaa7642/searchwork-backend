@@ -7,6 +7,7 @@ import {
   ParseFilePipeBuilder,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -16,12 +17,18 @@ import {
   ApiTags,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
 import { AppService } from './app.service';
 import { UploadFileResponse, UploadFileBody } from './user/dto/upload-file.dto';
+import { GetUser } from './auth/decorators/get-user.decorator';
+import { User } from './user/entities/user.entity';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 @ApiTags('upload-image')
+@ApiBearerAuth('JWT-auth')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -36,6 +43,8 @@ export class AppController {
   // }
 
   @ApiOperation({ summary: 'Upload user files' })
+  @UseGuards(JwtAuthGuard)
+
   @ApiCreatedResponse({
     description: 'Successful Operation',
     type: UploadFileResponse,
@@ -45,6 +54,7 @@ export class AppController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @Body() _body: UploadFileBody,
+    @GetUser() user: User,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({ maxSize: 5000000 })
@@ -54,6 +64,6 @@ export class AppController {
     )
     file: Express.Multer.File,
   ): Promise<UploadFileResponse> {
-    return this.appService.uploadFile(file);
+    return this.appService.uploadFile(user.id, file);
   }
 }
