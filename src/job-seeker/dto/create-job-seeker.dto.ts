@@ -46,12 +46,4 @@ export class CreateJobSeekerDto {
   @IsOptional()
   @IsString()
   certificatesData: string;
-  
-  @ApiProperty({
-    example:  'https://img.freepik.com/premium-photo/trees-growing-forest_1048944-30368869.jpg?w=2000',
-    description: 'Profile image of the user',
-  })
-  @IsString({ message: 'Image must' })
-  @IsOptional()
-  image?: string;
 }

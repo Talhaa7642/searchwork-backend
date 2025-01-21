@@ -131,23 +131,23 @@ export class JobSeekerService {
       throw new UnauthorizedException('User already has a job seeker profile');
     }
   
-    let profileImageUrl: string | undefined;
-    if (createJobSeekerDto.image) {
-      const uploadResult = await this.s3Service.uploadFile({
-        imageObject: {
-          path: `users/${user.id}/profile.jpg`,
-          data: createJobSeekerDto.image,
-          mime: 'image/jpeg',
-        },
-      });
+    // let profileImageUrl: string | undefined;
+    // if (createJobSeekerDto.image) {
+    //   const uploadResult = await this.s3Service.uploadFile({
+    //     imageObject: {
+    //       path: `users/${user.id}/profile.jpg`,
+    //       data: createJobSeekerDto.image,
+    //       mime: 'image/jpeg',
+    //     },
+    //   });
   
-      profileImageUrl = uploadResult.Location;
-    }
+    //   profileImageUrl = uploadResult.Location;
+    // }
   
-    if (profileImageUrl) {
-      user.profileImageUrl = profileImageUrl;
-      await this.userRepository.save(user);
-    }
+    // if (profileImageUrl) {
+    //   user.profileImageUrl = profileImageUrl;
+    //   await this.userRepository.save(user);
+    // }
   
     const newJobSeeker = this.jobSeekerRepository.create({
       ...createJobSeekerDto,
