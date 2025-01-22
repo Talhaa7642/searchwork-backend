@@ -10,6 +10,7 @@ import { AuthModule } from '../auth/auth.module';
 import { Employer } from '../employer/entities/employer.entity';
 import { SavedJob } from './entities/saved-job.entity';
 import { Notification } from '..//notifications/entities/notification.entity';
+import { MailService } from 'src/services/mailService';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { Notification } from '..//notifications/entities/notification.entity';
     AuthModule,
   ],
   controllers: [UserJobsController],
-  providers: [UserJobsService],
+  providers: [UserJobsService, MailService],
   exports: [UserJobsService],
 })
 export class UserJobsModule {}

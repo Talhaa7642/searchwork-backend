@@ -17,6 +17,7 @@ import { Role, Status } from '../utils/constants/constants';
 import { SortOrder } from '../common/dto/pagination.dto';
 import { SavedJob } from './entities/saved-job.entity';
 import { Notification } from '../notifications/entities/notification.entity';
+import { MailService } from 'src/services/mailService';
 
 @Injectable()
 export class UserJobsService {
@@ -29,6 +30,8 @@ export class UserJobsService {
     private readonly savedJobRepository: Repository<SavedJob>,
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
+    private readonly mailService: MailService,
+
   ) {}
 
   async create(
@@ -38,23 +41,24 @@ export class UserJobsService {
     // Profile check is handled by guard
     const jobPost = await this.jobPostRepository.findOne({
       where: { id: createUserJobDto.jobPostId },
-      relations: ['employer'],
+      relations: ['employer', 'employer.user'],
     });
-
+  
     if (!jobPost) {
       throw new NotFoundException('Job post not found');
     }
+  
     const existingApplication = await this.userJobRepository.findOne({
       where: {
         jobPost: { id: createUserJobDto.jobPostId },
         user: { id: user.id },
       },
     });
-
+  
     if (existingApplication) {
       throw new UnauthorizedException('You have already applied for this job');
     }
-
+  
     const userJob = this.userJobRepository.create({
       ...createUserJobDto,
       user,
@@ -62,18 +66,42 @@ export class UserJobsService {
       status: Status.Applied,
       appliedAt: new Date(),
     });
-    console.log(jobPost, user, '============')
+  
+    const employerAsUser = jobPost?.employer?.user;
     await this.notificationRepository.save({
       jobPost,
-      user: user,
+      user: employerAsUser,
       message: `User ${user.fullName} has applied to your job post "${jobPost.title}".`,
       isRead: false,
     });
   
     const savedUserJob = await this.userJobRepository.save(userJob);
-
+  
     await this.updateJobPostApplicationCount(jobPost.id);
-
+  
+    // Send email notifications
+    const employerEmail = employerAsUser?.email;
+    const jobSeekerEmail = user.email;
+  
+    try {
+      if (employerEmail) {
+        await this.mailService.sendEmployerNotificationEmail(
+          employerEmail,
+          jobPost.title,
+          user.fullName,
+        );
+      }
+  
+      if (jobSeekerEmail) {
+        await this.mailService.sendJobSeekerConfirmationEmail(
+          jobSeekerEmail,
+          jobPost.title,
+        );
+      }
+    } catch (error) {
+      console.error('Error sending email notifications:', error.message);
+    }
+  
     return savedUserJob;
   }
 
@@ -413,4 +441,51 @@ export class UserJobsService {
       { applicationCount: count },
     );
   }
+
+  async markAsViewed(id: number, user: User): Promise<UserJob> {
+    const userJob = await this.userJobRepository.findOne({
+      where: { id },
+      relations: ['jobPost', 'jobPost.employer', 'jobPost.employer.user', 'user'],
+    });
+  
+    if (!userJob) {
+      throw new NotFoundException('Application not found');
+    }
+  
+    if (!userJob.jobPost?.employer?.user) {
+      throw new NotFoundException('Employer user data not found');
+    }
+  
+    if (user.role !== Role.Admin && userJob.jobPost.employer.user.id !== user.id) {
+      throw new UnauthorizedException('You do not have permission to view this application');
+    }
+  
+    // Mark the application as viewed
+    userJob.isViewed = true;
+  
+    // Create a notification for the job seeker
+    await this.notificationRepository.save({
+      jobPost: userJob.jobPost,
+      user: userJob.user,
+      message: `Your application for the job "${userJob.jobPost.title}" has been viewed by the employer.`,
+      isRead: false,
+    });
+  
+    // Optionally, send an email to the job seeker
+    try {
+      if (userJob.user.email) {
+        await this.mailService.sendApplicationViewedNotification(
+          userJob.user.email,
+          userJob.jobPost.title,
+        );
+      }
+    } catch (error) {
+      console.error('Error sending application viewed email notification:', error.message);
+    }
+  
+    return this.userJobRepository.save(userJob);
+  }
+  
+  
+  
 }

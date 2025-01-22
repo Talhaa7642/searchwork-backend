@@ -20,6 +20,13 @@ export class UserJob extends BaseEntity {
   })
   appliedAt: Date;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isViewed: boolean;
+  
+
   // Table relations
   // Many-to-One relationship with JobPost, allows a user job to be associated with a job post
   // If the job post is deleted, the user job will also be deleted

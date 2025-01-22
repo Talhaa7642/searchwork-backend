@@ -43,7 +43,6 @@ export class UserJobsController {
   @Roles(Role.Employee)
   @ApiOperation({ summary: 'Get all saved jobs' })
   getSavedJobs(@GetUser() user: User) {
-    console.log(user, '======userrr======')
     return this.userJobsService.getSavedJobs(user);
   }
 
@@ -202,6 +201,28 @@ export class UserJobsController {
   ) {
     return this.userJobsService.getApplicationsByStatus(user, status);
   }
+
+  @Patch('view/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Employer, Role.Admin)
+  @ApiOperation({
+    summary: 'Mark job application as viewed',
+    description:
+      'Allows employers to mark an application as viewed when they access it.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Application marked as viewed successfully',
+    type: UserJobResponseDto,
+  })
+  markAsViewed(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ) {
+    console.log(id,'user', user);
+    return this.userJobsService.markAsViewed(id, user);
+  }
+
 
   @Delete('history')
   @UseGuards(JwtAuthGuard, RolesGuard)
