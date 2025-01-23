@@ -460,10 +460,12 @@ export class UserJobsService {
       throw new UnauthorizedException('You do not have permission to view this application');
     }
   
-    // Mark the application as viewed
+    if (userJob.isViewed) {
+      return userJob;
+    }
+  
     userJob.isViewed = true;
   
-    // Create a notification for the job seeker
     await this.notificationRepository.save({
       jobPost: userJob.jobPost,
       user: userJob.user,
@@ -471,7 +473,6 @@ export class UserJobsService {
       isRead: false,
     });
   
-    // Optionally, send an email to the job seeker
     try {
       if (userJob.user.email) {
         await this.mailService.sendApplicationViewedNotification(
