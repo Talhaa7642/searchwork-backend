@@ -4,13 +4,22 @@ import * as sgMail from '@sendgrid/mail';
 @Injectable()
 export class MailService {
   constructor() {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    const apiKey = process.env.SENDGRID_API_KEY;
+    if (!apiKey) {
+      throw new Error('SENDGRID_API_KEY is missing from environment variables');
+    }
+    sgMail.setApiKey(apiKey);
   }
 
   async sendVerificationEmail(to: string, otp: string): Promise<void> {
+    const fromEmail = process.env.ADMIN_FROM_EMAIL;
+    if (!fromEmail) {
+      throw new Error('ADMIN_FROM_EMAIL is missing from environment variables');
+    }
+
     const msg = {
       to,
-      from: process.env.ADMIN_FROM_EMAIL,
+      from: fromEmail,
       subject: 'Verify Your Email Address',
       text: `Your OTP for email verification is: ${otp}`,
       html: `<strong>Your OTP for email verification is: ${otp}</strong>`,
@@ -20,7 +29,7 @@ export class MailService {
       await sgMail.send(msg);
       console.log('Verification email sent to:', to);
     } catch (error) {
-      console.error('Error sending verification email:', error);
+      console.error('Error sending verification email:', error.response?.body?.errors || error.message);
       throw new Error('Could not send verification email');
     }
   }
