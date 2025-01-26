@@ -21,4 +21,4 @@ export class EmployerResponseDto {
 
   @ApiProperty({ example: '2024-03-20T10:00:00Z' })
   updatedAt: Date;
-} 
+}

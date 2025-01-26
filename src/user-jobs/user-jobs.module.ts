@@ -21,7 +21,7 @@ import { MailService } from 'src/services/mailService';
       JobSeeker,
       Employer,
       SavedJob,
-      Notification
+      Notification,
     ]),
     AuthModule,
   ],

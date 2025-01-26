@@ -41,4 +41,4 @@ export class UserFilterDto extends PaginationDto {
   @IsOptional()
   @IsString()
   search?: string;
-} 
+}

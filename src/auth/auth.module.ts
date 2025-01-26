@@ -30,7 +30,15 @@ import { Preferences } from 'src/user/entities/preferences.entity';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, MailService, RolesGuard, UserService, D7NetworksService, S3Service],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    MailService,
+    RolesGuard,
+    UserService,
+    D7NetworksService,
+    S3Service,
+  ],
   controllers: [AuthController],
   exports: [AuthService, RolesGuard],
 })

@@ -66,11 +66,11 @@ export class JobPostService {
         employerId: user.employerProfile.id, // Ensure the employer is the same
       },
     });
-  
+
     if (existingJobPost) {
-      throw new DuplicateJobPostException();  // Throw the custom exception
+      throw new DuplicateJobPostException(); // Throw the custom exception
     }
-  
+
     const jobPost = new JobPost();
     jobPost.title = createJobPostDto.title;
     jobPost.salary = createJobPostDto.salary;
@@ -79,13 +79,14 @@ export class JobPostService {
     jobPost.availability = createJobPostDto.availability;
     jobPost.employerId = user.employerProfile.id;
     jobPost.location = createJobPostDto.location;
-  
+
     // Save the new job post
     return await this.jobPostRepository.save(jobPost);
   }
 
   async findAll(
     filterDto: JobPostFilterDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     user?: User,
   ): Promise<PaginatedResponse<JobPost>> {
     const {

@@ -136,7 +136,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => SavedJob, (savedJob) => savedJob.user)
   savedJobs: SavedJob[];
- 
+
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
 }

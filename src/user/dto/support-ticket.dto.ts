@@ -11,8 +11,10 @@ export class CreateSupportTicketDto {
   issueTitle: string;
 
   @ApiProperty({
-    description: 'Detailed description of the issue reported in the support ticket',
-    example: 'Unable to log in with the provided credentials, showing an incorrect password error.',
+    description:
+      'Detailed description of the issue reported in the support ticket',
+    example:
+      'Unable to log in with the provided credentials, showing an incorrect password error.',
   })
   @IsNotEmpty()
   @IsString()
@@ -40,7 +42,8 @@ export class UpdateSupportTicketDto {
   @IsNotEmpty()
   @IsString()
   @IsIn(['open', 'in-progress', 'resolved', 'closed'], {
-    message: 'Status must be one of the following: open, in-progress, resolved, closed',
+    message:
+      'Status must be one of the following: open, in-progress, resolved, closed',
   })
   status: string;
 

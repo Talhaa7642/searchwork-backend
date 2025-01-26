@@ -2,7 +2,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpStatus,
   ParseFilePipeBuilder,
   Post,
@@ -13,7 +12,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiOperation,
-  ApiOkResponse,
   ApiTags,
   ApiConsumes,
   ApiCreatedResponse,
@@ -32,15 +30,6 @@ import { RolesGuard } from './auth/guards/roles.guard';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
-  // @ApiOperation({ summary: 'Health check' })
-  // @ApiOkResponse({
-  //   description: 'Never been better!',
-  // })
-  // @Get()
-  // checkHealth(): string {
-  //   return this.appService.ping();
-  // }
 
   @ApiOperation({ summary: 'Upload user files' })
   @UseGuards(JwtAuthGuard)

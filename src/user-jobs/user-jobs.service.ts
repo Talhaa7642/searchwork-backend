@@ -74,7 +74,7 @@ export class UserJobsService {
       message: `User ${user.fullName} has applied to your job post "${jobPost.title}".`,
       isRead: false,
     });
-  
+
     const savedUserJob = await this.userJobRepository.save(userJob);
   
     await this.updateJobPostApplicationCount(jobPost.id);
@@ -409,7 +409,7 @@ export class UserJobsService {
     user: User,
     status: Status,
   ): Promise<UserJob[]> {
-    console.log(user,'====user------', status)
+    console.log(user, '====user------', status);
     return await this.userJobRepository.find({
       where: {
         user: { id: user.id },

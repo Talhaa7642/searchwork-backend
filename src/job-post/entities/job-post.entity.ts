@@ -73,6 +73,12 @@ export class JobPost extends BaseEntity {
   @Column({ type: 'enum', enum: Status, default: Status.Hiring })
   status: Status;
 
+  @ApiProperty({ example: 0 })
+  @Column({ default: 0 })
+  applicationCount: number;
+
+  // Table relationships
+
   @ManyToOne(() => Employer, (employer) => employer.jobPosts, {
     onDelete: 'CASCADE',
   })
@@ -86,11 +92,7 @@ export class JobPost extends BaseEntity {
 
   @OneToMany(() => SavedJob, (savedJob) => savedJob.jobPost)
   savedBy: SavedJob[];
-  
+
   @OneToMany(() => Notification, (notification) => notification.jobPost)
   notifications: Notification[];
-
-  @ApiProperty({ example: 0 })
-  @Column({ default: 0 })
-  applicationCount: number;
 }

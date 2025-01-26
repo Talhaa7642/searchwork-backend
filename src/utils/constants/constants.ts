@@ -19,7 +19,7 @@ export enum Status {
 }
 
 export enum JobType {
-  FullTime = 'full time',
+  FullTime = 'full_time',
   PartTime = 'part_time',
   Contract = 'contract',
   Freelance = 'freelance',

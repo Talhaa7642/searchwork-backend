@@ -40,4 +40,4 @@ export class UserResponseDto {
     id: number;
     companyName: string;
   };
-} 
+}

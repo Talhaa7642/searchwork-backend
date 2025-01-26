@@ -153,10 +153,9 @@ export class JobSeekerService {
       ...createJobSeekerDto,
       user,
     });
-  
+
     return await this.jobSeekerRepository.save(newJobSeeker);
   }
-  
 
   async update(
     id: number,
