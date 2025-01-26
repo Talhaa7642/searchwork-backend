@@ -11,6 +11,7 @@ import { Feedback } from '../src/user/entities/feedback.entity';
 import { SupportTicket } from '../src/user/entities/supportTicket.entity';
 import { SavedJob } from '../src/user-jobs/entities/saved-job.entity';
 import { Notification } from '../src/notifications/entities/notification.entity';
+import { Preferences } from '../src/user/entities/preferences.entity';
 
 config();
 
@@ -21,7 +22,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [Location, User, JobSeeker, Employer, JobPost, UserJob, Feedback, SupportTicket, SavedJob, Notification],
+  entities: [Location, User, JobSeeker, Employer, JobPost, UserJob, Feedback, SupportTicket, SavedJob, Notification, Preferences],
   migrations: [__dirname + '/migrations/*.ts'],
   synchronize: false,
   logging: false,

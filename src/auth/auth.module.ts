@@ -15,10 +15,11 @@ import { RolesGuard } from './guards/roles.guard';
 import { UserService } from 'src/user/user.service';
 import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
 import { S3Service } from 'src/utils/s3Services/s3Services';
+import { Preferences } from 'src/user/entities/preferences.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Employer, JobSeeker]),
+    TypeOrmModule.forFeature([User, Employer, JobSeeker, Preferences]),
     forwardRef(() => UserModule),
     PassportModule,
     JwtModule.registerAsync({

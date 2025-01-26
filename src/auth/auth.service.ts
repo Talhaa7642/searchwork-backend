@@ -13,12 +13,14 @@ import { JobSeeker } from 'src/job-seeker/entities/job-seeker.entity';
 import { UserService } from 'src/user/user.service';
 import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
 import { S3Service } from 'src/utils/s3Services/s3Services';
+import { Preferences } from 'src/user/entities/preferences.entity';
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Employer) private readonly employerRepository: Repository<Employer>,
     @InjectRepository(JobSeeker) private readonly jobSeekerRepository: Repository<JobSeeker>,
+    @InjectRepository(Preferences) private readonly preferencesRepository: Repository<Preferences>,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly userService: UserService,
@@ -51,6 +53,21 @@ export class AuthService {
     });
 
     await this.userRepository.save(user);
+    const preferences = this.preferencesRepository.create({
+      user, // Associate preferences with the user
+      hideProfileData: false,
+      notificationsEnabled: true,
+      theme: 'light', // Default theme can be 'light' or any other value
+      showEmail: true,
+      showPhoneNumber: true,
+      showLocation: true,
+      contactViaEmail: true,
+      contactViaPhoneNumber: true,
+      contactViaMessage: true,
+    });
+    await this.preferencesRepository.save(preferences);
+  
+
     await this.generateAndSendOtp(user.email);
 
     return user;

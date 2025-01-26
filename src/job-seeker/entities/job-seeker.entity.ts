@@ -45,7 +45,7 @@ export class JobSeeker extends BaseEntity {
   })
   @IsNotEmpty()
   @IsString()
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   certificates: string;
 
   @ApiProperty({
@@ -54,7 +54,7 @@ export class JobSeeker extends BaseEntity {
   })
   @IsNotEmpty()
   @IsString()
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   certificatesData: string;
 
   // Table relations

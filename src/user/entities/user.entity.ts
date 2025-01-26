@@ -18,6 +18,7 @@ import { Feedback } from './feedback.entity';
 import { SupportTicket } from './supportTicket.entity';
 import { SavedJob } from '../../user-jobs/entities/saved-job.entity';
 import { Notification } from '../../notifications/entities/notification.entity';
+import { Preferences } from './preferences.entity';
 
 @Entity()
 @Index(['email', 'phoneNumber'], { unique: true })
@@ -112,6 +113,11 @@ export class User extends BaseEntity {
     onDelete: 'CASCADE',
   })
   employerProfile: Employer;
+
+  @OneToOne(() => Preferences, (userPreferences) => userPreferences.user, {
+    onDelete: 'CASCADE',
+  })
+  userPreferences: Preferences;
 
   //  @ManyToOne(() => Location, {
   //   onDelete: 'SET NULL',
