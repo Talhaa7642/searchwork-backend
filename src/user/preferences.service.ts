@@ -11,6 +11,30 @@ export class PreferencesService {
     private readonly preferencesRepository: Repository<Preferences>,
   ) {}
 
+  async createPreferences(userId: number): Promise<Preferences> {
+    let preferences = await this.preferencesRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (!preferences) {
+      preferences = this.preferencesRepository.create({
+        user: { id: userId },
+        hideProfileData: false,
+        notificationsEnabled: true,
+        theme: 'dark',
+        showEmail: true,
+        showPhoneNumber: true,
+        showLocation: true,
+        contactViaEmail: true,
+        contactViaPhoneNumber: true,
+        contactViaMessage: true,
+      });
+      await this.preferencesRepository.save(preferences);
+    }
+
+    return preferences;
+  }
+  
   async getPreferences(userId: number): Promise<Preferences> {
     const preferences = await this.preferencesRepository.findOne({
       where: { user: { id: userId } },

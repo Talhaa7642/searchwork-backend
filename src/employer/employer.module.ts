@@ -7,10 +7,11 @@ import { User } from '../user/entities/user.entity';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { JobSeeker } from '../job-seeker/entities/job-seeker.entity';
+import { Preferences } from '../user/entities/preferences.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Employer, User, JobSeeker]),
+    TypeOrmModule.forFeature([Employer, User, JobSeeker, Preferences]),
     UserModule,
     AuthModule,
   ],

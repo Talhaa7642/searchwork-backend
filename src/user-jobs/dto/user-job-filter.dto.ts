@@ -52,4 +52,4 @@ export class UserJobFilterDto extends PaginationDto {
   @IsOptional()
   @IsDateString()
   appliedBefore?: Date;
-}
+} 

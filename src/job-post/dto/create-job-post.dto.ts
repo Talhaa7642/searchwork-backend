@@ -1,8 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import {
   JobType,
   JobAvailability,
+  ExperienceLevel,
   // JobDuration,
 } from '../../utils/constants/constants';
 
@@ -41,7 +48,7 @@ export class CreateJobPostDto {
   // requirements?: string;
 
   @ApiProperty({
-    example: 'USA',
+    example: "USA",
     description: 'Location where the job is based',
   })
   @IsString()

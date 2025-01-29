@@ -11,13 +11,13 @@ import {
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Role } from 'src/utils/constants/constants';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../utils/constants/constants';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { User } from 'src/user/entities/user.entity';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User } from '../user/entities/user.entity';
 
 @ApiTags('notifications')
 @ApiBearerAuth('JWT-auth')

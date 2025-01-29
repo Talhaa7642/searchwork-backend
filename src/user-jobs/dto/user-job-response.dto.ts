@@ -34,4 +34,4 @@ export class UserJobResponseDto {
     id: number;
     fullName: string;
   };
-}
+} 

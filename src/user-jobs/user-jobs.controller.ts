@@ -1,21 +1,16 @@
-import { GetUser } from '../auth/decorators/get-user.decorator';
-import { User } from '../user/entities/user.entity';
-import { UserJobResponseDto } from './dto/user-job-response.dto';
-import { SaveJobDto } from './dto/save-job.dto';
-import { Role, Status } from '../utils/constants/constants';
 import {
   Controller,
-  Post,
-  UseGuards,
-  HttpStatus,
-  Body,
-  ValidationPipe,
   Get,
-  Query,
-  Param,
-  ParseIntPipe,
+  Post,
+  Body,
   Patch,
+  Param,
   Delete,
+  UseGuards,
+  Query,
+  ValidationPipe,
+  HttpStatus,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,13 +18,19 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserJobsService } from './user-jobs.service';
 import { CreateUserJobDto } from './dto/create-user-job.dto';
 import { UpdateUserJobDto } from './dto/update-user-job.dto';
 import { UserJobFilterDto } from './dto/user-job-filter.dto';
-import { UserJobsService } from './user-jobs.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../utils/constants/constants';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User } from '../user/entities/user.entity';
+import { UserJobResponseDto } from './dto/user-job-response.dto';
+import { SaveJobDto } from './dto/save-job.dto';
+import { Status } from '../utils/constants/constants';
 
 @ApiTags('user-jobs')
 @ApiBearerAuth('JWT-auth')
@@ -192,7 +193,7 @@ export class UserJobsController {
 
   @Get('applications/status/:status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Employee)
+  // @Roles(Role.Employee)
   @ApiOperation({ summary: 'Get applications by status' })
   getApplicationsByStatus(
     @Param('status') status: Status,

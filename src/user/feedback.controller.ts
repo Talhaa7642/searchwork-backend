@@ -1,26 +1,13 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import { FeedbackService } from './feedback.service';
-import { CreateFeedbackDto } from './dto/feedback.dto';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { User } from './entities/user.entity';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Role } from 'src/utils/constants/constants';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Body, Controller, Get, HttpStatus, Post, Query, UseGuards } from "@nestjs/common";
+import { FeedbackService } from "./feedback.service";
+import { CreateFeedbackDto } from "./dto/feedback.dto";
+import { GetUser } from "../auth/decorators/get-user.decorator";
+import { User } from "./entities/user.entity";
+import { Roles } from "../auth/decorators/roles.decorator";
+import { Role } from "../utils/constants/constants";
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { RolesGuard } from "../auth/guards/roles.guard";
 
 @ApiTags('feedback')
 @ApiBearerAuth('JWT-auth')
@@ -36,14 +23,8 @@ export class FeedbackController {
     status: HttpStatus.OK,
     description: 'Returns paginated users',
   })
-  async createFeedback(
-    @Body() createFeedbackDto: CreateFeedbackDto,
-    @GetUser() user: User,
-  ) {
-    return await this.feedbackService.createFeedback(
-      createFeedbackDto,
-      user?.id,
-    );
+  async createFeedback(@Body() createFeedbackDto: CreateFeedbackDto, @GetUser() user: User) {
+    return await this.feedbackService.createFeedback(createFeedbackDto, user?.id);
   }
 
   @Get()

@@ -6,6 +6,7 @@ import { BaseEntity } from '../../common/base/base.entity';
 @Entity()
 @Unique(['user', 'jobPost'])
 export class Notification extends BaseEntity {
+
   @ManyToOne(() => JobPost, (jobPost) => jobPost.notifications, {
     onDelete: 'CASCADE',
     nullable: false,

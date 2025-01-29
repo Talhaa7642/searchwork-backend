@@ -30,7 +30,7 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { JobPostResponseDto } from './dto/job-post-response.dto';
 import { JobPostFilterDto } from './dto/job-post-filter.dto';
-import { DuplicateJobPostException } from 'src/utils/exceptions/jobPostException';
+import { DuplicateJobPostException } from '../utils/exceptions/jobPostException';
 
 @ApiTags('job-posts')
 @ApiBearerAuth('JWT-auth')

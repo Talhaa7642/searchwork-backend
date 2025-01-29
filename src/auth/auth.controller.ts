@@ -12,15 +12,12 @@ import {
   ResendOtpDto,
 } from './dto/auth.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { D7NetworksService } from 'src/utils/d7-networks/d7.service';
+import { D7NetworksService } from '../utils/d7-networks/d7.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly d7NetworksService: D7NetworksService,
-  ) {}
+  constructor(private readonly authService: AuthService, private readonly d7NetworksService: D7NetworksService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -72,18 +69,15 @@ export class AuthController {
   @Post('register-phone-number')
   @ApiOperation({ summary: 'Register user phone number' })
   @ApiBody({ type: VerifyPhoneNumberDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Otp successfully send to Phone Number.',
-  })
+  @ApiResponse({ status: 200, description: 'Otp successfully send to Phone Number.' })
   @ApiResponse({ status: 400, description: 'Invalid phone number.' })
   async verifyPhoneNumber(@Body() verifyPhoneNumberDto: VerifyPhoneNumberDto) {
     try {
-      return await this.authService.sendOtpToPhoneNumber(verifyPhoneNumberDto);
-    } catch (error) {
-      throw new BadRequestException(
-        error.message || 'Phone verification failed',
+      return await this.authService.sendOtpToPhoneNumber(
+        verifyPhoneNumberDto
       );
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Phone verification failed');
     }
   }
 
@@ -92,9 +86,7 @@ export class AuthController {
   @ApiBody({ type: VerifyPhoneNumberOtpDto })
   @ApiResponse({ status: 200, description: 'Phone verified successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid OTP or phone number.' })
-  async verifyPhoneNumberByOtp(
-    @Body() verifyPhoneNumberOtpDto: VerifyPhoneNumberOtpDto,
-  ) {
+  async verifyPhoneNumberByOtp(@Body() verifyPhoneNumberOtpDto: VerifyPhoneNumberOtpDto) {
     return this.authService.verifyPhoneNumberByOtp(verifyPhoneNumberOtpDto);
   }
 

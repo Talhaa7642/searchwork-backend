@@ -10,7 +10,7 @@ import { AuthModule } from '../auth/auth.module';
 import { Employer } from '../employer/entities/employer.entity';
 import { SavedJob } from './entities/saved-job.entity';
 import { Notification } from '..//notifications/entities/notification.entity';
-import { MailService } from 'src/services/mailService';
+import { MailService } from '../services/mailService';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { MailService } from 'src/services/mailService';
       JobSeeker,
       Employer,
       SavedJob,
-      Notification,
+      Notification
     ]),
     AuthModule,
   ],

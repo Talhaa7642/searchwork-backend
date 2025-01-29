@@ -7,7 +7,7 @@ import { User } from '../user/entities/user.entity';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { Employer } from '../employer/entities/employer.entity';
-import { S3Service } from 'src/utils/s3Services/s3Services';
+import { S3Service } from '../utils/s3Services/s3Services';
 
 @Module({
   imports: [

@@ -4,8 +4,8 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
-import { User } from 'src/user/entities/user.entity';
-import { JobPost } from 'src/job-post/entities/job-post.entity';
+import { User } from '../user/entities/user.entity';
+import { JobPost } from '../job-post/entities/job-post.entity';
 
 @Injectable()
 export class NotificationsService {
@@ -18,38 +18,36 @@ export class NotificationsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(
-    createNotificationDto: CreateNotificationDto,
-  ): Promise<Notification> {
+  async create(createNotificationDto: CreateNotificationDto): Promise<Notification> {
+
     const jobPost = await this.jobPostRepository.findOne({
       where: { id: createNotificationDto.jobPostId },
     });
-
+  
     const user = await this.userRepository.findOne({
       where: { id: createNotificationDto.userId },
     });
-
+  
     if (!jobPost) {
       throw new Error('Job post not found');
     }
-
+  
     if (!user) {
       throw new Error('User not found');
     }
-
+  
     const notification = this.notificationRepository.create({
       jobPost,
       user,
       message: createNotificationDto.message,
       isRead: createNotificationDto.isRead,
     });
-
+  
     return this.notificationRepository.save(notification);
   }
+  
 
-  async getNotificationsForEmployer(
-    employerId: number,
-  ): Promise<Notification[]> {
+  async getNotificationsForEmployer(employerId: number): Promise<Notification[]> {
     return this.notificationRepository.find({
       where: { user: { id: employerId } },
       relations: ['jobPost', 'user'],

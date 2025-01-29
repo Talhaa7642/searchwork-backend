@@ -13,7 +13,7 @@ import { JobSeekerFilterDto } from './dto/job-seeker-filter.dto';
 import { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { SortOrder } from '../common/dto/pagination.dto';
 import { Role } from '../utils/constants/constants';
-import { S3Service } from 'src/utils/s3Services/s3Services';
+import { S3Service } from '../utils/s3Services/s3Services';
 
 @Injectable()
 export class JobSeekerService {
@@ -153,9 +153,10 @@ export class JobSeekerService {
       ...createJobSeekerDto,
       user,
     });
-
+  
     return await this.jobSeekerRepository.save(newJobSeeker);
   }
+  
 
   async update(
     id: number,

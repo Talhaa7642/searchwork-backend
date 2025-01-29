@@ -28,15 +28,15 @@ export class Employer extends BaseEntity {
     example: '1234567890',
     description: 'Company registration number',
   })
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   registrationNumber: string;
 
   @ApiProperty({
-    example: true,
+    example: "Write something about your company",
     description: 'Indicates whether the employer wants to hide their profile data in job posts',
   })
-  @Column({ default: false })
-  hideProfileData: boolean;
+  @Column({ nullable: true })
+  bio: string;
 
   // Table relations
   // One-to-Many relationship with JobPost, allows an employer to have multiple job postings

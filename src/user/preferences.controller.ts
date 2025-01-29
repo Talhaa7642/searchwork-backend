@@ -5,6 +5,7 @@ import {
     Body,
     UseGuards,
     HttpStatus,
+    Post,
   } from '@nestjs/common';
   import {
     ApiTags,
@@ -16,11 +17,11 @@ import {
   import { PreferencesService } from './preferences.service';
   import { UpdatePreferencesDto } from './dto/preferences.dto';
   import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-  import { GetUser } from 'src/auth/decorators/get-user.decorator';
+  import { GetUser } from '../auth/decorators/get-user.decorator';
   import { User } from '../user/entities/user.entity';
-  import { RolesGuard } from 'src/auth/guards/roles.guard';
-  import { Roles } from 'src/auth/decorators/roles.decorator';
-  import { Role } from 'src/utils/constants/constants';
+  import { RolesGuard } from '../auth/guards/roles.guard';
+  import { Roles } from '../auth/decorators/roles.decorator';
+  import { Role } from '../utils/constants/constants';
   
   @ApiTags('Preferences')
   @ApiBearerAuth('JWT-auth')
@@ -29,6 +30,35 @@ import {
   export class PreferencesController {
     constructor(private readonly preferencesService: PreferencesService) {}
   
+    @Post()
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    // @Roles(Role.Employee, Role.Employer)
+    @ApiOperation({ summary: 'Create preferences for the authenticated user' })
+    @ApiResponse({
+      status: HttpStatus.OK,
+      description: 'Returns the user’s preferences.',
+      schema: {
+        example: {
+          hideProfileData: false,
+          notificationsEnabled: true,
+          theme: 'dark',
+          showEmail: true,
+          showPhoneNumber: true,
+          showLocation: true,
+          contactViaEmail: true,
+          contactViaPhoneNumber: true,
+          contactViaMessage: true,
+        },
+      },
+    })
+    @ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'Unauthorized access.',
+    })
+    async createPreferences(@GetUser() user: User) {
+      return await this.preferencesService.createPreferences(user.id);
+    }
+   
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)
     // @Roles(Role.Employee, Role.Employer)

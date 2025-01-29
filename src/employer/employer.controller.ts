@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { EmployerService } from './employer.service';
 import { CreateEmployerDto } from './dto/create-employer.dto';
-import { UpdateEmployerDto } from './dto/update-employer.dto';
+import { UpdateEmployerDto, UpdateToggleProfileVisibility } from './dto/update-employer.dto';
 import { EmployerFilterDto } from './dto/employer-filter.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -106,9 +106,9 @@ export class EmployerController {
   toggleEmployerVisibility(
     // @Param('id') id: number,
     @GetUser() user: User,
-    @Body(ValidationPipe) updateEmployerDto: UpdateEmployerDto,
+    @Body(ValidationPipe) updateToggleProfileVisibility: UpdateToggleProfileVisibility,
   ) {
-    return this.employerService.updateEmployer(user.id, updateEmployerDto);
+    return this.employerService.updateEmployer(user.id, updateToggleProfileVisibility);
   }
 
   @Delete('delete/:id')
